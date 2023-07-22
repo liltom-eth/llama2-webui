@@ -2,6 +2,8 @@
 
 Running Llama 2 with gradio web UI on your desktop GPU. Supporting 8-bit, 4-bit mode on Llama 2 7B, 13B, 70B.
 
+![screenshot](./static/screenshot.png)
+
 ## Features
 
 - Web UI interface: gradio 
@@ -70,11 +72,11 @@ For GPTQ models like [TheBloke/Llama-2-7b-Chat-GPTQ](https://huggingface.co/TheB
 
 Setup your `MODEL_PATH` in `.env` file. 
 
-Check `.env.7b_8bit_example` as a reference to run `Llama-2-7b` on 8-bit mode.
+Check `./env_examples/.env.7b_8bit_example` as a reference to run `Llama-2-7b` on 8-bit mode.
 
-Check `.env.7b_gptq_example` as a reference to run `Llama-2-7b-Chat-GPTQ` on 4-bit mode.
+Check `./env_examples/..env.7b_gptq_example` as a reference to run `Llama-2-7b-Chat-GPTQ` on 4-bit mode.
 
-Check `.env.13b_example` as a reference to run `Llama-2-13b` without quantization.
+Check `./env_examples/..env.13b_example` as a reference to run `Llama-2-13b` without quantization.
 
 ```
 python app.py
