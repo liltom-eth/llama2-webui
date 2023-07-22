@@ -43,6 +43,8 @@ pip install -r requirements.txt
 
 -  `pip install bitsandbytes==0.38.1`
 
+If run on CPU, install llama.cpp additionally by `pip install llama-cpp-python`.
+
 ## Download Llama-2 Models
 
 Llama 2 is a collection of pre-trained and fine-tuned generative text models ranging in scale from 7 billion to 70 billion parameters.
