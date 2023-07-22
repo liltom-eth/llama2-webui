@@ -1,9 +1,6 @@
 from threading import Thread
 from typing import Iterator
 
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
-
 
 class LLAMA2_WRAPPER:
     def __init__(self, config: dict = {}):
@@ -12,25 +9,32 @@ class LLAMA2_WRAPPER:
         self.tokenizer = None
 
     def init_model(self):
-        load_in_8bit = self.config.get("load_in_8bit", True)
-        load_in_4bit = self.config.get("load_in_4bit", False)
         if self.model is None:
             self.model = LLAMA2_WRAPPER.create_llama2_model(
-                self.config["model_name"],
-                load_in_8bit=load_in_8bit,
-                load_in_4bit=load_in_4bit,
+                self.config,
             )
-        self.model.eval()
+        if not self.config.get("llama_cpp"):
+            self.model.eval()
 
     def init_tokenizer(self):
-        if self.tokenizer is None:
-            self.tokenizer = LLAMA2_WRAPPER.create_llama2_tokenizer(
-                self.config["model_name"]
-            )
+        if self.tokenizer is None and not self.config.get("llama_cpp"):
+            self.tokenizer = LLAMA2_WRAPPER.create_llama2_tokenizer(self.config)
 
     @classmethod
-    def create_llama2_model(cls, model_name, load_in_8bit=False, load_in_4bit=False):
-        if load_in_4bit:
+    def create_llama2_model(cls, config):
+        model_name = config.get("model_name")
+        load_in_8bit = config.get("load_in_8bit", True)
+        load_in_4bit = config.get("load_in_4bit", False)
+        llama_cpp = config.get("llama_cpp", False)
+        if llama_cpp:
+            from llama_cpp import Llama
+
+            model = Llama(
+                model_path=model_name,
+                n_ctx=config.get("MAX_INPUT_TOKEN_LENGTH"),
+                n_batch=config.get("MAX_INPUT_TOKEN_LENGTH"),
+            )
+        elif load_in_4bit:
             from auto_gptq import AutoGPTQForCausalLM
 
             model = AutoGPTQForCausalLM.from_quantized(
@@ -42,6 +46,9 @@ class LLAMA2_WRAPPER:
                 quantize_config=None,
             )
         else:
+            import torch
+            from transformers import AutoModelForCausalLM
+
             model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 device_map="auto",
@@ -51,7 +58,10 @@ class LLAMA2_WRAPPER:
         return model
 
     @classmethod
-    def create_llama2_tokenizer(cls, model_name):
+    def create_llama2_tokenizer(cls, config):
+        model_name = config.get("model_name")
+        from transformers import AutoTokenizer
+
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         return tokenizer
 
@@ -59,8 +69,13 @@ class LLAMA2_WRAPPER:
         self, message: str, chat_history: list[tuple[str, str]], system_prompt: str
     ) -> int:
         prompt = get_prompt(message, chat_history, system_prompt)
-        input_ids = self.tokenizer([prompt], return_tensors="np")["input_ids"]
-        return input_ids.shape[-1]
+
+        if self.config.get("llama_cpp"):
+            input_ids = self.model.tokenize(bytes(prompt, "utf-8"))
+            return len(input_ids)
+        else:
+            input_ids = self.tokenizer([prompt], return_tensors="np")["input_ids"]
+            return input_ids.shape[-1]
 
     def run(
         self,
@@ -73,28 +88,48 @@ class LLAMA2_WRAPPER:
         top_k: int = 50,
     ) -> Iterator[str]:
         prompt = get_prompt(message, chat_history, system_prompt)
-        inputs = self.tokenizer([prompt], return_tensors="pt").to("cuda")
+        if self.config.get("llama_cpp"):
+            inputs = self.model.tokenize(bytes(prompt, "utf-8"))
+            generate_kwargs = dict(
+                top_p=top_p,
+                top_k=top_k,
+                temp=temperature,
+            )
 
-        streamer = TextIteratorStreamer(
-            self.tokenizer, timeout=10.0, skip_prompt=True, skip_special_tokens=True
-        )
-        generate_kwargs = dict(
-            inputs,
-            streamer=streamer,
-            max_new_tokens=max_new_tokens,
-            do_sample=True,
-            top_p=top_p,
-            top_k=top_k,
-            temperature=temperature,
-            num_beams=1,
-        )
-        t = Thread(target=self.model.generate, kwargs=generate_kwargs)
-        t.start()
+            generator = self.model.generate(inputs, **generate_kwargs)
+            outputs = []
+            for token in generator:
+                if token == self.model.token_eos():
+                    break
+                b_text = self.model.detokenize([token])
+                text = str(b_text, encoding="utf-8")
+                outputs.append(text)
+                yield "".join(outputs)
+        else:
+            from transformers import TextIteratorStreamer
 
-        outputs = []
-        for text in streamer:
-            outputs.append(text)
-            yield "".join(outputs)
+            inputs = self.tokenizer([prompt], return_tensors="pt").to("cuda")
+
+            streamer = TextIteratorStreamer(
+                self.tokenizer, timeout=10.0, skip_prompt=True, skip_special_tokens=True
+            )
+            generate_kwargs = dict(
+                inputs,
+                streamer=streamer,
+                max_new_tokens=max_new_tokens,
+                do_sample=True,
+                top_p=top_p,
+                top_k=top_k,
+                temperature=temperature,
+                num_beams=1,
+            )
+            t = Thread(target=self.model.generate, kwargs=generate_kwargs)
+            t.start()
+
+            outputs = []
+            for text in streamer:
+                outputs.append(text)
+                yield "".join(outputs)
 
 
 def get_prompt(

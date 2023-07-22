@@ -2,7 +2,6 @@ import os
 from typing import Iterator
 
 import gradio as gr
-import torch
 
 from dotenv import load_dotenv
 from distutils.util import strtobool
@@ -39,24 +38,38 @@ LOAD_IN_8BIT = bool(strtobool(os.getenv("LOAD_IN_8BIT", "True")))
 
 LOAD_IN_4BIT = bool(strtobool(os.getenv("LOAD_IN_4BIT", "True")))
 
+LLAMA_CPP = bool(strtobool(os.getenv("LLAMA_CPP", "True")))
+
 config = {
     "model_name": MODEL_PATH,
     "load_in_8bit": LOAD_IN_8BIT,
     "load_in_4bit": LOAD_IN_4BIT,
+    "llama_cpp": LLAMA_CPP,
+    "MAX_INPUT_TOKEN_LENGTH": MAX_INPUT_TOKEN_LENGTH,
 }
 llama2_wrapper = LLAMA2_WRAPPER(config)
 llama2_wrapper.init_tokenizer()
 llama2_wrapper.init_model()
 
 DESCRIPTION = """
-# Llama-2 ChatBot
+# llama2-webui
 
-This is a chatbot based on Llama-2. Supporting 8-bit, 4-bit mode on Llama 2 7B, 13B, 70B.
+This is a chatbot based on Llama-2. 
+- Supporting models: [Llama-2-7b](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), all [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), all [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) ...
+- Supporting model backends
+  - Nvidia GPU(at least 6 GB VRAM): tranformers, [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ)
+  - CPU(at least 6 GB RAM), Mac/AMD GPU: [llama.cpp](https://github.com/ggerganov/llama.cpp)
 """
 
+if LLAMA_CPP:
+    print("Running on CPU with llama.cpp.")
+else:
+    import torch
 
-if not torch.cuda.is_available():
-    DESCRIPTION += "\n<p>Running on CPU 🥶 This demo does not work on CPU.</p>"
+    if not torch.cuda.is_available():
+        print("Running on GPU with torch transformers.")
+    else:
+        print("CUDA not found.")
 
 
 def clear_and_save_textbox(message: str) -> tuple[str, str]:
