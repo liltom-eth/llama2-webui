@@ -40,6 +40,16 @@ LOAD_IN_4BIT = bool(strtobool(os.getenv("LOAD_IN_4BIT", "True")))
 
 LLAMA_CPP = bool(strtobool(os.getenv("LLAMA_CPP", "True")))
 
+if LLAMA_CPP:
+    print("Running on CPU with llama.cpp.")
+else:
+    import torch
+
+    if torch.cuda.is_available():
+        print("Running on GPU with torch transformers.")
+    else:
+        print("CUDA not found.")
+
 config = {
     "model_name": MODEL_PATH,
     "load_in_8bit": LOAD_IN_8BIT,
@@ -60,16 +70,6 @@ This is a chatbot based on Llama-2.
   - Nvidia GPU(at least 6 GB VRAM): tranformers, [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ)
   - CPU(at least 6 GB RAM), Mac/AMD GPU: [llama.cpp](https://github.com/ggerganov/llama.cpp)
 """
-
-if LLAMA_CPP:
-    print("Running on CPU with llama.cpp.")
-else:
-    import torch
-
-    if torch.cuda.is_available():
-        print("Running on GPU with torch transformers.")
-    else:
-        print("CUDA not found.")
 
 
 def clear_and_save_textbox(message: str) -> tuple[str, str]:
