@@ -12,7 +12,7 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
     - GPU inference with at least 6 GB VRAM
 
   - CPU, Mac/AMD GPU: [llama.cpp](https://github.com/ggerganov/llama.cpp)
-    - CPU inference with at least 6 GB RAM
+    - CPU inference [Demo](https://twitter.com/liltom_eth/status/1682791729207070720?s=20) on Macbook Air.
 
 - Web UI interface: gradio 
 
