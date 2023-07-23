@@ -66,7 +66,7 @@ if LLAMA_CPP:
 else:
     import torch
 
-    if not torch.cuda.is_available():
+    if torch.cuda.is_available():
         print("Running on GPU with torch transformers.")
     else:
         print("CUDA not found.")
