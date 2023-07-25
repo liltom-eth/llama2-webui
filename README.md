@@ -30,6 +30,8 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
     - [Run on Low Memory GPU with 4 bit](#run-on-low-memory-gpu-with-4-bit)
   - [Run on CPU](#run-on-cpu)
     - [Mac GPU and AMD/Nvidia GPU Acceleration](#mac-gpu-and-amdnvidia-gpu-acceleration)
+- [Contributing](#contributing)
+- [License](#license)
   
 
 
