@@ -155,8 +155,6 @@ If you would like to use Mac GPU and AMD/Nvidia GPU for acceleration, check thes
 
 ## Contributing
 
-See [Contributing](CONTRIBUTING.md) for details.
-
 Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand about our development process.
 
 ### All Contributors
