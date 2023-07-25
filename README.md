@@ -153,8 +153,27 @@ If you would like to use Mac GPU and AMD/Nvidia GPU for acceleration, check thes
 
 - [MacOS Install with Metal GPU](https://github.com/abetlen/llama-cpp-python/blob/main/docs/install/macos.md)
 
+## Contributing
+
+See [Contributing](CONTRIBUTING.md) for details.
+
+Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand about our development process.
+
+### All Contributors
+
+<a href="https://github.com/liltom-eth/llama2-webui/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=liltom-eth/llama2-webui" />
+</a>
+
+## License
+
+MIT - see [MIT License](LICENSE)
+
 ## Credits
 
 - https://huggingface.co/meta-llama/Llama-2-7b-chat-hf
 - https://huggingface.co/spaces/huggingface-projects/llama-2-7b-chat
 - https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ
+- [https://github.com/ggerganov/llama.cpp](https://github.com/ggerganov/llama.cpp)
+- [https://github.com/TimDettmers/bitsandbytes](https://github.com/TimDettmers/bitsandbytes)
+- [https://github.com/PanQiWei/AutoGPTQ](https://github.com/PanQiWei/AutoGPTQ)
