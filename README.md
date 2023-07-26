@@ -1,8 +1,27 @@
 # llama2-webui
 
-Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Mac). Supporting Llama 2 7B, 13B, 70B with 8-bit, 4-bit mode. Supporting GPU inference with at least 6 GB VRAM, and CPU inference with at least 6 GB RAM.
+Run Llama 2 with a web user interface (gradio) on major operating systems (Linux, Windows, and Mac).
+
+**Supported models variants:**  
+
+| Llama 2              | Variants   |
+|-----------------------------|---------------------|
+| # parameters                | 7B, 13B, 70B        |
+| Precision Mode              | 8-bit, 4-bit        |
+
+**System requirements for model inference:**  
+
+| Requirement       | GPU Inference      | CPU Inference      |
+|-----------------------------|--------------------|--------------------|
+| Memory                      | ≥ 6 GB VRAM    | ≥ 6 GB RAM     |
+
+**NOTE:**  
+This project stands apart from others due to our exclusive use of freely available and commercially accessible back-ends. This implementation enables users to adapt it freely for proprietary purposes without any restrictions.
+
+**Screenshot:**  
 
 ![screenshot](./static/screenshot.png)
+
 
 ## Features
 
