@@ -36,7 +36,7 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 
 
 ## Install
-
+For Mac and Linux:
 ```
 pip install -r requirements.txt
 ```
@@ -44,6 +44,13 @@ pip install -r requirements.txt
 `bitsandbytes >= 0.39` may not work on older NVIDIA GPUs. In that case, to use `LOAD_IN_8BIT`, you may have to downgrade like this:
 
 -  `pip install bitsandbytes==0.38.1`
+
+For Windows:
+```
+pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/download/wheels/bitsandbytes-0.41.0-py3-none-win_amd64.whl
+
+pip install -r requirements_windows.txt
+```
 
 If run on CPU, install llama.cpp additionally by `pip install llama-cpp-python`.
 
