@@ -6,7 +6,7 @@ import gradio as gr
 from dotenv import load_dotenv
 from distutils.util import strtobool
 
-from model import LLAMA2_WRAPPER
+from llama2_wrapper import LLAMA2_WRAPPER
 
 load_dotenv()
 
