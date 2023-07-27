@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "llama2-wrapper"
+version = "0.1.3"
+description = "Running Llama 2 on GPU or CPU from anywhere (Linux/Windows/Mac)."
+authors = ["liltom-eth <liltom.eth@gmail.com>"]
+license = "MIT"
+homepage = "https://github.com/liltom-eth/llama2-webui"
+repository = "https://github.com/liltom-eth/llama2-webui"
+
+packages = [{include = "llama2_wrapper"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+accelerate = "^0.21.0"
+auto-gptq = "0.3.0"
+gradio = "3.37.0"
+protobuf = "3.20.3"
+scipy = "1.11.1"
+sentencepiece = "0.1.99"
+torch = "2.0.1"
+transformers = "4.31.0"
+tqdm = "4.65.0"
+python-dotenv = "1.0.0"
+llama-cpp-python = "^0.1.77"
+bitsandbytes = [
+    {platform = 'linux', version = "0.40.2"},
+    {platform = 'darwin', version = "0.40.2"},
+]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
