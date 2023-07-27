@@ -280,6 +280,23 @@ files = [
 ]
 
 [[package]]
+name = "bitsandbytes"
+version = "0.41.0"
+description = "k-bit optimizers and matrix multiplication routines."
+optional = false
+python-versions = "*"
+files = [
+    {file = "bitsandbytes-0.41.0-py3-none-win_amd64.whl", hash = "sha256:a75ed614d691bf0acdbc22c91b546563994fb2d49fa0a0432d01ee24cdd2d8d8"},
+]
+
+[package.dependencies]
+scipy = "*"
+
+[package.source]
+type = "url"
+url = "https://github.com/jllllll/bitsandbytes-windows-webui/releases/download/wheels/bitsandbytes-0.41.0-py3-none-win_amd64.whl"
+
+[[package]]
 name = "certifi"
 version = "2023.7.22"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -3032,4 +3049,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "5af6f7d182e8c41a7b5c018394844a57b3b0f10e8b6b859e80463f4edbf98a2e"
+content-hash = "5482b38ff725a66f0a85c8b00208518d1ebcfac36357a1ea245dcb9c2b47f8bd"
