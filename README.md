@@ -38,10 +38,17 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 
 
 ## Install
+### Method 1: From [PyPI](https://pypi.org/project/llama2-wrapper/)
 ```
+pip install llama2-wrapper
+```
+### Method 2: From Source:
+```
+git clone https://github.com/liltom-eth/llama2-webui.git
+cd llama2-webui
 pip install -r requirements.txt
 ```
-
+### Install Issues:
 `bitsandbytes >= 0.39` may not work on older NVIDIA GPUs. In that case, to use `LOAD_IN_8BIT`, you may have to downgrade like this:
 
 -  `pip install bitsandbytes==0.38.1`
@@ -51,8 +58,6 @@ pip install -r requirements.txt
 pip uninstall bitsandbytes
 pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/download/wheels/bitsandbytes-0.41.0-py3-none-win_amd64.whl
 ```
-
-If run on CPU, install llama.cpp additionally by `pip install llama-cpp-python`.
 
 ## Download Llama-2 Models
 
@@ -140,11 +145,8 @@ Make sure you have downloaded the 4-bit model from `Llama-2-7b-Chat-GPTQ` and se
 
 ### Run on CPU
 
-Run Llama-2 model on CPU requires [llama.cpp](https://github.com/ggerganov/llama.cpp) dependency and [llama.cpp Python Bindings](https://github.com/abetlen/llama-cpp-python). 
+Run Llama-2 model on CPU requires [llama.cpp](https://github.com/ggerganov/llama.cpp) dependency and [llama.cpp Python Bindings](https://github.com/abetlen/llama-cpp-python), which are already installed. 
 
-```bash
-pip install llama-cpp-python
-```
 
 Download GGML models like `llama-2-7b-chat.ggmlv3.q4_0.bin` following [Download Llama-2 Models](#download-llama-2-models) section. `llama-2-7b-chat.ggmlv3.q4_0.bin` model requires at least 6 GB RAM to run on CPU.
 
