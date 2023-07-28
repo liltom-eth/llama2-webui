@@ -84,7 +84,7 @@ class LLAMA2_WRAPPER:
         temperature: float = 0.8,
         top_p: float = 0.95,
         top_k: int = 50,
-    )-> Iterator[str]:
+    ) -> Iterator[str]:
         if self.config.get("llama_cpp"):
             inputs = self.model.tokenize(bytes(prompt, "utf-8"))
             generate_kwargs = dict(
@@ -104,6 +104,7 @@ class LLAMA2_WRAPPER:
                 yield "".join(outputs)
         else:
             from transformers import TextIteratorStreamer
+
             inputs = self.tokenizer([prompt], return_tensors="pt").to("cuda")
 
             streamer = TextIteratorStreamer(
@@ -140,16 +141,17 @@ class LLAMA2_WRAPPER:
         prompt = get_prompt(message, chat_history, system_prompt)
         return self.generate(prompt, max_new_tokens, temperature, top_p, top_k)
 
-    def __call__(self, prompt: str, **kwargs: Any,) -> str:
+    def __call__(
+        self,
+        prompt: str,
+        **kwargs: Any,
+    ) -> str:
         if self.config.get("llama_cpp"):
-            self.model.__call__(prompt, **kwargs)
+            return self.model.__call__(prompt, **kwargs)["choices"][0]["text"]
         else:
-            inputs = self.tokenizer([prompt], return_tensors="pt").to("cuda")
-            generate_kwargs = dict(
-                inputs,
-                **kwargs,
-            )
-            return self.model.generate(generate_kwargs)
+            inputs = self.tokenizer([prompt], return_tensors="pt").input_ids.to("cuda")
+            output = self.model.generate(inputs=inputs, **kwargs)
+            return self.tokenizer.decode(output[0])
 
 
 def get_prompt(
