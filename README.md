@@ -115,7 +115,7 @@ There are some examples in `./env_examples/` folder.
 | Llama-2-13b-chat-hf on GPU        | .env.13b_example            |
 | ...                               | ...                         |
 
-### Start  Web UI
+### Start Web UI
 
 Run chatbot with web UI:
 

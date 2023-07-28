@@ -1,5 +1,5 @@
 from threading import Thread
-from typing import Iterator
+from typing import Any, Iterator
 
 
 class LLAMA2_WRAPPER:
@@ -77,17 +77,14 @@ class LLAMA2_WRAPPER:
             input_ids = self.tokenizer([prompt], return_tensors="np")["input_ids"]
             return input_ids.shape[-1]
 
-    def run(
+    def generate(
         self,
-        message: str,
-        chat_history: list[tuple[str, str]],
-        system_prompt: str,
+        prompt: str,
         max_new_tokens: int = 1024,
         temperature: float = 0.8,
         top_p: float = 0.95,
         top_k: int = 50,
-    ) -> Iterator[str]:
-        prompt = get_prompt(message, chat_history, system_prompt)
+    )-> Iterator[str]:
         if self.config.get("llama_cpp"):
             inputs = self.model.tokenize(bytes(prompt, "utf-8"))
             generate_kwargs = dict(
@@ -107,7 +104,6 @@ class LLAMA2_WRAPPER:
                 yield "".join(outputs)
         else:
             from transformers import TextIteratorStreamer
-
             inputs = self.tokenizer([prompt], return_tensors="pt").to("cuda")
 
             streamer = TextIteratorStreamer(
@@ -130,6 +126,30 @@ class LLAMA2_WRAPPER:
             for text in streamer:
                 outputs.append(text)
                 yield "".join(outputs)
+
+    def run(
+        self,
+        message: str,
+        chat_history: list[tuple[str, str]],
+        system_prompt: str,
+        max_new_tokens: int = 1024,
+        temperature: float = 0.8,
+        top_p: float = 0.95,
+        top_k: int = 50,
+    ) -> Iterator[str]:
+        prompt = get_prompt(message, chat_history, system_prompt)
+        return self.generate(prompt, max_new_tokens, temperature, top_p, top_k)
+
+    def __call__(self, prompt: str, **kwargs: Any,) -> str:
+        if self.config.get("llama_cpp"):
+            self.model.__call__(prompt, **kwargs)
+        else:
+            inputs = self.tokenizer([prompt], return_tensors="pt").to("cuda")
+            generate_kwargs = dict(
+                inputs,
+                **kwargs,
+            )
+            return self.model.generate(generate_kwargs)
 
 
 def get_prompt(
