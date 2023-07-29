@@ -65,17 +65,23 @@ class LLAMA2_WRAPPER:
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         return tokenizer
 
-    def get_input_token_length(
-        self, message: str, chat_history: list[tuple[str, str]], system_prompt: str
+    def get_token_length(
+        self,
+        prompt: str,
     ) -> int:
-        prompt = get_prompt(message, chat_history, system_prompt)
-
         if self.config.get("llama_cpp"):
             input_ids = self.model.tokenize(bytes(prompt, "utf-8"))
             return len(input_ids)
         else:
             input_ids = self.tokenizer([prompt], return_tensors="np")["input_ids"]
             return input_ids.shape[-1]
+
+    def get_input_token_length(
+        self, message: str, chat_history: list[tuple[str, str]], system_prompt: str
+    ) -> int:
+        prompt = get_prompt(message, chat_history, system_prompt)
+
+        return self.get_token_length(prompt)
 
     def generate(
         self,
