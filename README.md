@@ -30,10 +30,9 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
   - [Run on Nvidia GPU](#run-on-nvidia-gpu)
     - [Run on Low Memory GPU with 8 bit](#run-on-low-memory-gpu-with-8-bit)
     - [Run on Low Memory GPU with 4 bit](#run-on-low-memory-gpu-with-4-bit)
-    - [Inference Performance on Nvidia GPU](#inference-performance-on-nvidia-gpu)
   - [Run on CPU](#run-on-cpu)
     - [Mac GPU and AMD/Nvidia GPU Acceleration](#mac-gpu-and-amdnvidia-gpu-acceleration)
-    - [Inference Performance on CPU](#inference-performance-on-cpu)
+  - [Benchmark](#benchmark)
 - [Contributing](#contributing)
 - [License](#license)
   
@@ -145,16 +144,6 @@ Make sure you have downloaded the 4-bit model from `Llama-2-7b-Chat-GPTQ` and se
 
 `Llama-2-7b-Chat-GPTQ` can run on a single GPU with 6 GB of VRAM.
 
-#### Inference Performance on Nvidia GPU
-
-| Model                             | Presicion | GPU Device | Run-time Memory / GB | Speed / token/sec | 
-| --------------------------------- | --------- | ---------- | ---------------------- | ---------------- |
-| Llama-2-7b-chat-hf 8-bit          |   A16W8   | Nvidia A10 | 2.7GB +                |                  |
-| Llama-2-7b-Chat-GPTQ 4-bit        |   A16W4   | Nvidia A10 | 1.35GB +               |                  |
-| Llama-2-7B-Chat-GGML 4bit         |   A16W4   | Nvidia A10 | 1.35GB +               |                  |
-| Llama-2-13b-chat-hf               |   A16W4   | Nvidia A10 | 26GB +                 |                  |
-
-
 ### Run on CPU
 
 Run Llama-2 model on CPU requires [llama.cpp](https://github.com/ggerganov/llama.cpp) dependency and [llama.cpp Python Bindings](https://github.com/abetlen/llama-cpp-python), which are already installed. 
@@ -176,14 +165,25 @@ If you would like to use Mac GPU and AMD/Nvidia GPU for acceleration, check thes
 
 - [MacOS Install with Metal GPU](https://github.com/abetlen/llama-cpp-python/blob/main/docs/install/macos.md)
 
-#### Inference Performance on CPU
+### Benchmark
 
-| Model                             | Presicion | CPU Device | Run-time Memory / GB | Speed / token/sec |
-| --------------------------------- | --------- | ---------- | ---------------------- | ---------------- |
-| Llama-2-7b-chat-hf 8-bit          |   A16W8   |  | 2.7GB +                |                  |
-| Llama-2-7b-Chat-GPTQ 4-bit        |   A16W4   |  | 1.35GB +               |                  |
-| Llama-2-7B-Chat-GGML 4bit         |   A16W4   |  | 1.35GB +               |                  |
-| Llama-2-13b-chat-hf               |   A16W4   |  | 26GB +                 |                  |
+Run benchmark script to compute performance on your device:
+
+```bash
+python benchmark.py
+```
+
+`benchmark.py` will load the same `.env` as `app.py`.
+
+Some benchmark performance:
+
+| Model                | Precision | Device             | GPU VRAM    | Speed (tokens / sec) | load time (s) |
+| -------------------- | --------- | ------------------ | ----------- | -------------------- | ------------- |
+| Llama-2-7b-chat-hf   | 8bit      | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 3.76                 | 783.87        |
+| Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 12.08                | 192.91        |
+| Llama-2-7B-Chat-GGML | 4 bit     | Intel i7-8700      | 5.1GB RAM   | 4.16                 | 105.75        |
+
+Check / contribute the performance of your device in the full [performance doc](./docs/performance.md).
 
 ## Contributing
 
