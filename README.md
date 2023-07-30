@@ -195,6 +195,10 @@ Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand ab
   <img src="https://contrib.rocks/image?repo=liltom-eth/llama2-webui" />
 </a>
 
+### Review
+
+<a href='https://github.com/repo-reviews/repo-reviews.github.io/blob/main/create.md' target="_blank"><img alt='Github' src='https://img.shields.io/badge/review-100000?style=flat&logo=Github&logoColor=white&labelColor=888888&color=555555'/></a>
+
 ## License
 
 MIT - see [MIT License](LICENSE)
