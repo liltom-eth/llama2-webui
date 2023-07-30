@@ -35,8 +35,8 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
   - [Run on CPU](#run-on-cpu)
     - [Mac GPU and AMD/Nvidia GPU Acceleration](#mac-gpu-and-amdnvidia-gpu-acceleration)
   - [Benchmark](#benchmark)
-- [Contributing](#contributing)
 - [License](#license)
+- [Contributing](#contributing)
   
 
 
@@ -188,6 +188,12 @@ Some benchmark performance:
 
 Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
 
+## License
+
+MIT - see [MIT License](LICENSE)
+
+This project enables users to adapt it freely for proprietary purposes without any restrictions.
+
 ## Contributing
 
 Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand our development process.
@@ -199,16 +205,9 @@ Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand ou
 </a>
 
 ### Review
-
 <a href='https://github.com/repo-reviews/repo-reviews.github.io/blob/main/create.md' target="_blank"><img alt='Github' src='https://img.shields.io/badge/review-100000?style=flat&logo=Github&logoColor=white&labelColor=888888&color=555555'/></a>
 
-## License
-
-MIT - see [MIT License](LICENSE)
-
-This project enables users to adapt it freely for proprietary purposes without any restrictions.
-
-## Star History
+### Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=liltom-eth/llama2-webui&type=Date)](https://star-history.com/#liltom-eth/llama2-webui&Date)
 
