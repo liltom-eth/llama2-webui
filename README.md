@@ -10,13 +10,15 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 
 - Supporting models: [Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), all [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), all [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) ...
 - Supporting model backends
-  - Nvidia GPU: tranformers, [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ)
+  - Nvidia GPU: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ)
     - GPU inference with at least 6 GB VRAM
 
   - CPU, Mac/AMD GPU: [llama.cpp](https://github.com/ggerganov/llama.cpp)
     - CPU inference [Demo](https://twitter.com/liltom_eth/status/1682791729207070720?s=20) on Macbook Air.
 
 - Web UI interface: gradio 
+
+- [News](./docs/news.md), [Benchmark](./docs/performance.md), [Issue Solutions](./docs/issues.md)
 
 ## Contents
 
@@ -177,17 +179,18 @@ python benchmark.py
 
 Some benchmark performance:
 
-| Model                | Precision | Device             | GPU VRAM    | Speed (tokens / sec) | load time (s) |
+| Model                | Precision | Device             | GPU VRAM    | Speed (tokens/sec) | load time (s) |
 | -------------------- | --------- | ------------------ | ----------- | -------------------- | ------------- |
 | Llama-2-7b-chat-hf   | 8bit      | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76                 | 783.87        |
 | Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 12.08                | 192.91        |
-| Llama-2-7B-Chat-GGML | 4 bit     | Intel i7-8700      | 5.1GB RAM   | 4.16                 | 105.75        |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Intel i7-8700      | 5.1GB RAM   | 4.16                 | 105.75        |
+| llama-2-7b-chat.ggmlv3.q2_K | 2 bit | Intel i7-8700 | 4.5 GB RAM | 5.70 | 71.48 |
 
-Check / contribute the performance of your device in the full [performance doc](./docs/performance.md).
+Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
 
 ## Contributing
 
-Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand about our development process.
+Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand our development process.
 
 ### All Contributors
 
