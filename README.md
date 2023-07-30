@@ -208,6 +208,10 @@ MIT - see [MIT License](LICENSE)
 
 This project enables users to adapt it freely for proprietary purposes without any restrictions.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=liltom-eth/llama2-webui&type=Date)](https://star-history.com/#liltom-eth/llama2-webui&Date)
+
 ## Credits
 
 - https://huggingface.co/meta-llama/Llama-2-7b-chat-hf
