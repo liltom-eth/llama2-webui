@@ -74,14 +74,11 @@ def main():
     try:
         first_response = next(generator)
         # history += [(example, first_response)]
-        # print(first_response)
     except StopIteration:
         pass
         # history += [(example, "")]
-        # print(history)
     for response in generator:
         # history += [(example, response)]
-        # print(response)
         pass
     print(response)
 
