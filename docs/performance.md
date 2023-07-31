@@ -15,8 +15,11 @@
 | Model                             | Precision | Device | RAM / GPU VRAM | Speed (tokens/sec) | load time (s) |
 | --------------------------------- | --------- | ---------- | ---------------------- | ---------------- | ---------------- |
 | llama-2-7b-chat.ggmlv3.q2_K | 2 bit     | Intel i7-8700 | 4.5 GB RAM     | 5.70               | 71.48         |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Intel i7-8700 | 5.1GB RAM      | 4.16               | 105.75 |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M1 CPU  |                |                    |               |
+| llama-2-7b-chat.ggmlv3.q2_K | 2 bit | Apple M2 CPU | 4.5 GB RAM | 10.49 | 0.14 |
+| llama-2-7b-chat.ggmlv3.q2_K | 2 bit | Apple M2 Metal | 4.5 GB RAM | 10.51 | 0.64 |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Intel i7-8700 | 5.4GB RAM     | 4.16               | 105.75 |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU | 5.4GB RAM | 5.28 | 0.20 |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4GB RAM | 6.08 | 1.88 |
 | llama-2-7b-chat.ggmlv3.q8_0 | 8 bit | Intel i7-8700 | 8.6 GB RAM | 2.63 | 336.57 |
 |  |  |  |  |  |  |
 
