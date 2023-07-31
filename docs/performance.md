@@ -21,5 +21,6 @@
 | llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU | 5.4GB RAM | 5.28 | 0.20 |
 | llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4GB RAM | 6.08 | 1.88 |
 | llama-2-7b-chat.ggmlv3.q8_0 | 8 bit | Intel i7-8700 | 8.6 GB RAM | 2.63 | 336.57 |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | vServer, Intel 4 Threads | 8 GB RAM | 1.31 | 0.5
 |  |  |  |  |  |  |
 
