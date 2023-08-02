@@ -10,13 +10,15 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 
 - Supporting models: [Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), all [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), all [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) ...
 - Supporting model backends
-  - Nvidia GPU: tranformers, [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ)
+  - Nvidia GPU: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ)
     - GPU inference with at least 6 GB VRAM
 
   - CPU, Mac/AMD GPU: [llama.cpp](https://github.com/ggerganov/llama.cpp)
     - CPU inference [Demo](https://twitter.com/liltom_eth/status/1682791729207070720?s=20) on Macbook Air.
 
 - Web UI interface: gradio 
+
+- [News](./docs/news.md), [Benchmark](./docs/performance.md), [Issue Solutions](./docs/issues.md)
 
 ## Contents
 
@@ -31,10 +33,11 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
     - [Run on Low Memory GPU with 8 bit](#run-on-low-memory-gpu-with-8-bit)
     - [Run on Low Memory GPU with 4 bit](#run-on-low-memory-gpu-with-4-bit)
   - [Run on CPU](#run-on-cpu)
-    - [Mac GPU and AMD/Nvidia GPU Acceleration](#mac-gpu-and-amdnvidia-gpu-acceleration)
+    - [Mac Metal Acceleration](#mac-metal-acceleration)
+    - [AMD/Nvidia GPU Acceleration](#amdnvidia-gpu-acceleration)
   - [Benchmark](#benchmark)
-- [Contributing](#contributing)
 - [License](#license)
+- [Contributing](#contributing)
   
 
 
@@ -144,6 +147,9 @@ Make sure you have downloaded the 4-bit model from `Llama-2-7b-Chat-GPTQ` and se
 
 `Llama-2-7b-Chat-GPTQ` can run on a single GPU with 6 GB of VRAM.
 
+If you encounter issue like `NameError: name 'autogptq_cuda_256' is not defined`, please refer to [here](https://huggingface.co/TheBloke/open-llama-13b-open-instruct-GPTQ/discussions/1)
+> pip install https://github.com/PanQiWei/AutoGPTQ/releases/download/v0.3.0/auto_gptq-0.3.0+cu117-cp310-cp310-linux_x86_64.whl  
+
 ### Run on CPU
 
 Run Llama-2 model on CPU requires [llama.cpp](https://github.com/ggerganov/llama.cpp) dependency and [llama.cpp Python Bindings](https://github.com/abetlen/llama-cpp-python), which are already installed. 
@@ -155,15 +161,25 @@ Set up configs like `.env.7b_ggmlv3_q4_0_example` from `env_examples` as `.env`.
 
 Run web UI `python app.py` .
 
+#### Mac Metal Acceleration
 
+If you would like to use Mac Metal for acceleration, 
 
-#### Mac GPU and AMD/Nvidia GPU Acceleration
+```bash
+pip uninstall llama-cpp-python -y
+CMAKE_ARGS="-DLLAMA_METAL=on" FORCE_CMAKE=1 pip install -U llama-cpp-python --no-cache-dir
+pip install 'llama-cpp-python[server]'
+```
 
-If you would like to use Mac GPU and AMD/Nvidia GPU for acceleration, check these:
-
-- [Installation with OpenBLAS / cuBLAS / CLBlast / Metal](https://github.com/abetlen/llama-cpp-python#installation-with-openblas--cublas--clblast--metal)
+or check details:
 
 - [MacOS Install with Metal GPU](https://github.com/abetlen/llama-cpp-python/blob/main/docs/install/macos.md)
+
+#### AMD/Nvidia GPU Acceleration
+
+If you would like to use AMD/Nvidia GPU for acceleration, check this:
+
+- [Installation with OpenBLAS / cuBLAS / CLBlast / Metal](https://github.com/abetlen/llama-cpp-python#installation-with-openblas--cublas--clblast--metal)
 
 ### Benchmark
 
@@ -177,17 +193,25 @@ python benchmark.py
 
 Some benchmark performance:
 
-| Model                | Precision | Device             | GPU VRAM    | Speed (tokens / sec) | load time (s) |
+| Model                | Precision | Device             | GPU VRAM    | Speed (tokens/sec) | load time (s) |
 | -------------------- | --------- | ------------------ | ----------- | -------------------- | ------------- |
-| Llama-2-7b-chat-hf   | 8bit      | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 3.76                 | 783.87        |
-| Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 12.08                | 192.91        |
-| Llama-2-7B-Chat-GGML | 4 bit     | Intel i7-8700      | 5.1GB RAM   | 4.16                 | 105.75        |
+| Llama-2-7b-chat-hf   | 8bit      | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76                 | 783.87        |
+| Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 12.08                | 192.91        |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4GB RAM   | 5.28               | 0.20          |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4GB RAM | 9.56 | 0.47 |
+| llama-2-7b-chat.ggmlv3.q2_K | 2 bit | Intel i7-8700 | 4.5 GB RAM | 5.70 | 71.48 |
 
-Check / contribute the performance of your device in the full [performance doc](./docs/performance.md).
+Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
+
+## License
+
+MIT - see [MIT License](LICENSE)
+
+This project enables users to adapt it freely for proprietary purposes without any restrictions.
 
 ## Contributing
 
-Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand about our development process.
+Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand our development process.
 
 ### All Contributors
 
@@ -195,11 +219,12 @@ Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand ab
   <img src="https://contrib.rocks/image?repo=liltom-eth/llama2-webui" />
 </a>
 
-## License
+### Review
+<a href='https://github.com/repo-reviews/repo-reviews.github.io/blob/main/create.md' target="_blank"><img alt='Github' src='https://img.shields.io/badge/review-100000?style=flat&logo=Github&logoColor=white&labelColor=888888&color=555555'/></a>
 
-MIT - see [MIT License](LICENSE)
+### Star History
 
-This project enables users to adapt it freely for proprietary purposes without any restrictions.
+[![Star History Chart](https://api.star-history.com/svg?repos=liltom-eth/llama2-webui&type=Date)](https://star-history.com/#liltom-eth/llama2-webui&Date)
 
 ## Credits
 
