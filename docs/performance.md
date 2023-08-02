@@ -22,6 +22,7 @@
 | llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Intel i7-9700 | 4.8GB RAM   | 4.2                 | 87.9        |
 | llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU | 5.4GB RAM | 5.28 | 0.20 |
 | llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4GB RAM | 6.08 | 1.88 |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | AMD Ryzen 9 5900HS | 4.1GB RAM | 6.01 | 0.15 |
 | llama-2-7b-chat.ggmlv3.q8_0 | 8 bit | Intel i7-8700 | 8.6 GB RAM | 2.63 | 336.57 |
 | llama-2-7b-chat.ggmlv3.q8_0 | 8 bit     | Intel i7-9700 | 7.6GB RAM   | 2.05              | 302.9    |
 
