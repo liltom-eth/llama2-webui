@@ -197,8 +197,8 @@ Some benchmark performance:
 | -------------------- | --------- | ------------------ | ----------- | -------------------- | ------------- |
 | Llama-2-7b-chat-hf   | 8bit      | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76                 | 783.87        |
 | Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 12.08                | 192.91        |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4GB RAM   | 5.28               | 0.20          |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4GB RAM | 9.56 | 0.47 |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4 GB RAM   | 5.28               | 0.20          |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4 GB RAM | 9.56 | 0.47 |
 | llama-2-7b-chat.ggmlv3.q2_K | 2 bit | Intel i7-8700 | 4.5 GB RAM | 5.70 | 71.48 |
 
 Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
