@@ -33,7 +33,8 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
     - [Run on Low Memory GPU with 8 bit](#run-on-low-memory-gpu-with-8-bit)
     - [Run on Low Memory GPU with 4 bit](#run-on-low-memory-gpu-with-4-bit)
   - [Run on CPU](#run-on-cpu)
-    - [Mac GPU and AMD/Nvidia GPU Acceleration](#mac-gpu-and-amdnvidia-gpu-acceleration)
+    - [Mac Metal Acceleration](#mac-metal-acceleration)
+    - [AMD/Nvidia GPU Acceleration](#amdnvidia-gpu-acceleration)
   - [Benchmark](#benchmark)
 - [License](#license)
 - [Contributing](#contributing)
@@ -160,15 +161,25 @@ Set up configs like `.env.7b_ggmlv3_q4_0_example` from `env_examples` as `.env`.
 
 Run web UI `python app.py` .
 
+#### Mac Metal Acceleration
 
+If you would like to use Mac Metal for acceleration, 
 
-#### Mac GPU and AMD/Nvidia GPU Acceleration
+```bash
+pip uninstall llama-cpp-python -y
+CMAKE_ARGS="-DLLAMA_METAL=on" FORCE_CMAKE=1 pip install -U llama-cpp-python --no-cache-dir
+pip install 'llama-cpp-python[server]'
+```
 
-If you would like to use Mac GPU and AMD/Nvidia GPU for acceleration, check these:
-
-- [Installation with OpenBLAS / cuBLAS / CLBlast / Metal](https://github.com/abetlen/llama-cpp-python#installation-with-openblas--cublas--clblast--metal)
+or check details:
 
 - [MacOS Install with Metal GPU](https://github.com/abetlen/llama-cpp-python/blob/main/docs/install/macos.md)
+
+#### AMD/Nvidia GPU Acceleration
+
+If you would like to use AMD/Nvidia GPU for acceleration, check this:
+
+- [Installation with OpenBLAS / cuBLAS / CLBlast / Metal](https://github.com/abetlen/llama-cpp-python#installation-with-openblas--cublas--clblast--metal)
 
 ### Benchmark
 
@@ -186,7 +197,8 @@ Some benchmark performance:
 | -------------------- | --------- | ------------------ | ----------- | -------------------- | ------------- |
 | Llama-2-7b-chat-hf   | 8bit      | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76                 | 783.87        |
 | Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 12.08                | 192.91        |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Intel i7-8700      | 5.1GB RAM   | 4.16                 | 105.75        |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4GB RAM   | 5.28               | 0.20          |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4GB RAM | 9.56 | 0.47 |
 | llama-2-7b-chat.ggmlv3.q2_K | 2 bit | Intel i7-8700 | 4.5 GB RAM | 5.70 | 71.48 |
 
 Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
