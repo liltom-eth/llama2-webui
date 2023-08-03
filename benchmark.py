@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from distutils.util import strtobool
 from llama2_wrapper import LLAMA2_WRAPPER
 from memory_profiler import memory_usage
+from tqdm import tqdm
 
 def run_iteration(llama2_wrapper, prompt_example, DEFAULT_SYSTEM_PROMPT, DEFAULT_MAX_NEW_TOKENS):
     def generation():
@@ -32,7 +33,7 @@ def run_iteration(llama2_wrapper, prompt_example, DEFAULT_SYSTEM_PROMPT, DEFAULT
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--iter", type=int, default=1, help="Number of iterations")
+    parser.add_argument("--iter", type=int, default=5, help="Number of iterations")
     args = parser.parse_args()
 
     load_dotenv()
@@ -80,15 +81,14 @@ def main():
     total_memory_gen = 0
 
     prompt_example = "Can you explain briefly to me what is the Python programming language?"
-    model_response = ""
 
     # Cold run
     print("Performing cold run...")
     run_iteration(llama2_wrapper, prompt_example, DEFAULT_SYSTEM_PROMPT, DEFAULT_MAX_NEW_TOKENS)
 
     # Timed runs
-    print("Performing timed runs...")
-    for _ in range(args.iter):
+    print(f"Performing {args.iter} timed runs...")
+    for _ in tqdm(range(args.iter)):
         gen_time, tokens_per_sec, mem_gen, model_response = run_iteration(llama2_wrapper, prompt_example, DEFAULT_SYSTEM_PROMPT, DEFAULT_MAX_NEW_TOKENS)
         total_time += gen_time
         total_tokens_per_second += tokens_per_sec
@@ -101,7 +101,7 @@ def main():
     print(f"Initialization time: {initialization_time:0.4f} seconds.")
     print(f"Average generation time over {args.iter} iterations: {avg_time:0.4f} seconds.")
     print(f"Average speed over {args.iter} iterations: {avg_tokens_per_second:0.4f} tokens/sec.")
-    print(f"Average memory during generation: {avg_memory_gen:.2f} MiB")
+    print(f"Average memory usage during generation: {avg_memory_gen:.2f} MiB")
 
 if __name__ == "__main__":
     main()

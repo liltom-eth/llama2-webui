@@ -186,8 +186,10 @@ If you would like to use AMD/Nvidia GPU for acceleration, check this:
 Run benchmark script to compute performance on your device:
 
 ```bash
-python benchmark.py
+python benchmark.py [--iter NB_OF_ITERATIONS]
 ```
+
+ --iter NB_OF_ITERATIONS (optional, default=5): Use this option to specify the number of iterations for the benchmark.
 
 `benchmark.py` will load the same `.env` as `app.py`.
 
