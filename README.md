@@ -189,6 +189,15 @@ Run benchmark script to compute performance on your device:
 python benchmark.py
 ```
 
+You can also select the number of times the benchmark will be run :
+
+```bash
+python benchmark.py --iter NB_OF_ITERATIONS
+```
+
+ By default, the number of iterations is 5, but if you want a faster result or a more accurate one 
+ you can set it to whatever value you want, but please only report results with at least 5 iterations.
+
 `benchmark.py` will load the same `.env` as `app.py`.
 
 Some benchmark performance:
