@@ -147,6 +147,9 @@ Make sure you have downloaded the 4-bit model from `Llama-2-7b-Chat-GPTQ` and se
 
 `Llama-2-7b-Chat-GPTQ` can run on a single GPU with 6 GB of VRAM.
 
+If you encounter issue like `NameError: name 'autogptq_cuda_256' is not defined`, please refer to [here](https://huggingface.co/TheBloke/open-llama-13b-open-instruct-GPTQ/discussions/1)
+> pip install https://github.com/PanQiWei/AutoGPTQ/releases/download/v0.3.0/auto_gptq-0.3.0+cu117-cp310-cp310-linux_x86_64.whl  
+
 ### Run on CPU
 
 Run Llama-2 model on CPU requires [llama.cpp](https://github.com/ggerganov/llama.cpp) dependency and [llama.cpp Python Bindings](https://github.com/abetlen/llama-cpp-python), which are already installed. 
@@ -186,6 +189,15 @@ Run benchmark script to compute performance on your device:
 python benchmark.py
 ```
 
+You can also select the number of times the benchmark will be run :
+
+```bash
+python benchmark.py --iter NB_OF_ITERATIONS
+```
+
+ By default, the number of iterations is 5, but if you want a faster result or a more accurate one 
+ you can set it to whatever value you want, but please only report results with at least 5 iterations.
+
 `benchmark.py` will load the same `.env` as `app.py`.
 
 Some benchmark performance:
@@ -194,8 +206,8 @@ Some benchmark performance:
 | -------------------- | --------- | ------------------ | ----------- | -------------------- | ------------- |
 | Llama-2-7b-chat-hf   | 8bit      | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76                 | 783.87        |
 | Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 12.08                | 192.91        |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4GB RAM   | 5.28               | 0.20          |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4GB RAM | 9.56 | 0.47 |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4 GB RAM   | 5.28               | 0.20          |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4 GB RAM | 9.56 | 0.47 |
 | llama-2-7b-chat.ggmlv3.q2_K | 2 bit | Intel i7-8700 | 4.5 GB RAM | 5.70 | 71.48 |
 
 Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
