@@ -26,6 +26,5 @@
 | llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Intel vServer 4 threads, eth services | 8 GB RAM | 1.31 | 0.5
 | llama-2-7b-chat.ggmlv3.q8_0 | 8 bit | Intel i7-8700 | 8.6 GB RAM | 2.63 | 336.57 |
 | llama-2-7b-chat.ggmlv3.q8_0 | 8 bit     | Intel i7-9700 | 7.6 GB RAM   | 2.05              | 302.9    |
-
 |  |  |  |  |  |  |
 
