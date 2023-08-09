@@ -10,18 +10,39 @@ class LLAMA2_WRAPPER:
         backend_type: str = "llama.cpp",
         max_tokens: int = 4000,
         load_in_8bit: bool = True,
+        verbose: bool = False,
     ):
         self.model_path = model_path
         self.backend_type = BackendType.get_type(backend_type)
         self.max_tokens = max_tokens
         self.load_in_8bit = load_in_8bit
+
         self.model = None
         self.tokenizer = None
+
+        self.verbose = verbose
+
+        if self.backend_type is BackendType.LLAMA_CPP:
+            print("Running on backend llama.cpp.")
+        else:
+            import torch
+
+            if torch.cuda.is_available():
+                print("Running on GPU with backend torch transformers.")
+            else:
+                print("GPU CUDA not found.")
+
+        self.init_tokenizer()
+        self.init_model()
 
     def init_model(self):
         if self.model is None:
             self.model = LLAMA2_WRAPPER.create_llama2_model(
-                self.model_path, self.backend_type, self.max_tokens, self.load_in_8bit
+                self.model_path,
+                self.backend_type,
+                self.max_tokens,
+                self.load_in_8bit,
+                self.verbose,
             )
         if self.backend_type is not BackendType.LLAMA_CPP:
             self.model.eval()
@@ -32,7 +53,9 @@ class LLAMA2_WRAPPER:
                 self.tokenizer = LLAMA2_WRAPPER.create_llama2_tokenizer(self.model_path)
 
     @classmethod
-    def create_llama2_model(cls, model_path, backend_type, max_tokens, load_in_8bit):
+    def create_llama2_model(
+        cls, model_path, backend_type, max_tokens, load_in_8bit, verbose
+    ):
         if backend_type is BackendType.LLAMA_CPP:
             from llama_cpp import Llama
 
@@ -40,6 +63,7 @@ class LLAMA2_WRAPPER:
                 model_path=model_path,
                 n_ctx=max_tokens,
                 n_batch=max_tokens,
+                verbose=verbose,
             )
         elif backend_type is BackendType.GPTQ:
             from auto_gptq import AutoGPTQForCausalLM
@@ -109,8 +133,8 @@ class LLAMA2_WRAPPER:
 
             generator = self.model.generate(
                 inputs,
-                top_p=top_p,
                 top_k=top_k,
+                top_p=top_p,
                 temp=temperature,
                 repeat_penalty=repetition_penalty,
                 **kwargs,
@@ -120,7 +144,7 @@ class LLAMA2_WRAPPER:
                 if token == self.model.token_eos():
                     break
                 b_text = self.model.detokenize([token])
-                text = str(b_text, encoding="utf-8")
+                text = str(b_text, encoding="utf-8", errors="ignore")
                 outputs.append(text)
                 yield "".join(outputs)
         else:
@@ -229,6 +253,6 @@ class BackendType(Enum):
         elif "cpp" in backend_name_lower:
             backend_type = BackendType.LLAMA_CPP
         else:
-            raise Exception("Unknown backend: model_name")
+            raise Exception("Unknown backend: " + backend_name)
             # backend_type = BackendType.UNKNOWN
         return backend_type
