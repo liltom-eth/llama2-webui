@@ -30,8 +30,8 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
   - [Config Examples](#config-examples)
   - [Start Web UI](#start-web-ui)
   - [Run on Nvidia GPU](#run-on-nvidia-gpu)
-    - [Run on Low Memory GPU with 8 bit](#run-on-low-memory-gpu-with-8-bit)
-    - [Run on Low Memory GPU with 4 bit](#run-on-low-memory-gpu-with-4-bit)
+    - [Run on Low Memory Nvidia GPU with bitsandbytes 8 bit](#run-on-low-memory-nvidia-gpu-with-bitsandbytes-8-bit)
+    - [Run on Low Memory Nvidia GPU with GPTQ 4 bit](#run-on-low-memory-nvidia-gpu-with-gptq-4-bit)
   - [Run on CPU](#run-on-cpu)
     - [Mac Metal Acceleration](#mac-metal-acceleration)
     - [AMD/Nvidia GPU Acceleration](#amdnvidia-gpu-acceleration)
@@ -105,20 +105,6 @@ For GGML models like [TheBloke/Llama-2-7B-Chat-GGML](https://huggingface.co/TheB
 
 ## Usage
 
-### Config Examples
-
-Setup your `MODEL_PATH` and model configs in `.env` file. 
-
-There are some examples in `./env_examples/` folder.
-
-| Model Setup                       | Example .env                |
-| --------------------------------- | --------------------------- |
-| Llama-2-7b-chat-hf 8-bit on GPU   | .env.7b_8bit_example        |
-| Llama-2-7b-Chat-GPTQ 4-bit on GPU | .env.7b_gptq_example        |
-| Llama-2-7B-Chat-GGML 4bit on CPU  | .env.7b_ggmlv3_q4_0_example |
-| Llama-2-13b-chat-hf on GPU        | .env.13b_example            |
-| ...                               | ...                         |
-
 ### Start Web UI
 
 Run chatbot with web UI:
@@ -127,21 +113,37 @@ Run chatbot with web UI:
 python app.py
 ```
 
+`app.py` will load the default config `.env` which using `llama.cpp` as the backend to run `llama-2-7b-chat.ggmlv3.q4_0.bin` model for inference.
+
+You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). 
+
+### Env Examples
+
+There are some examples in `./env_examples/` folder.
+
+| Model Setup                                            | Example .env                |
+| ------------------------------------------------------ | --------------------------- |
+| Llama-2-7b-chat-hf 8-bit (transformers backend)        | .env.7b_8bit_example        |
+| Llama-2-7b-Chat-GPTQ 4-bit (gptq transformers backend) | .env.7b_gptq_example        |
+| Llama-2-7B-Chat-GGML 4bit (llama.cpp backend)          | .env.7b_ggmlv3_q4_0_example |
+| Llama-2-13b-chat-hf (transformers backend)             | .env.13b_example            |
+| ...                                                    | ...                         |
+
 ### Run on Nvidia GPU
 
 The running requires around 14GB of GPU VRAM for Llama-2-7b and 28GB of GPU VRAM for Llama-2-13b. 
 
 If you are running on multiple GPUs, the model will be loaded automatically on GPUs and split the VRAM usage. That allows you to run Llama-2-7b (requires 14GB of GPU VRAM) on a setup like 2 GPUs (11GB VRAM each).
 
-#### Run on Low Memory GPU with 8 bit
+#### Run on Low Memory Nvidia GPU with bitsandbytes 8 bit
 
 If you do not have enough memory,  you can set up your `LOAD_IN_8BIT` as `True` in `.env`. This can reduce memory usage by around half with slightly degraded model quality. It is compatible with the CPU, GPU, and Metal backend.
 
 Llama-2-7b with 8-bit compression can run on a single GPU with 8 GB of VRAM, like an Nvidia RTX 2080Ti, RTX 4080, T4, V100 (16GB).
 
-#### Run on Low Memory GPU with 4 bit
+#### Run on Low Memory Nvidia GPU with GPTQ 4 bit
 
-If you want to run 4 bit  Llama-2 model like `Llama-2-7b-Chat-GPTQ`,  you can set up your `LOAD_IN_4BIT` as `True` in `.env` like example `.env.7b_gptq_example`. 
+If you want to run 4 bit  Llama-2 model like `Llama-2-7b-Chat-GPTQ`,  you can set up your `BACKEND_TYPE` as `gptq` in `.env` like example `.env.7b_gptq_example`. 
 
 Make sure you have downloaded the 4-bit model from `Llama-2-7b-Chat-GPTQ` and set the `MODEL_PATH` and arguments in `.env` file.
 
@@ -163,7 +165,7 @@ Run web UI `python app.py` .
 
 #### Mac Metal Acceleration
 
-If you would like to use Mac Metal for acceleration, 
+For Mac users, you can also set up Mac Metal for acceleration, try install this dependencies:
 
 ```bash
 pip uninstall llama-cpp-python -y
@@ -204,7 +206,7 @@ Some benchmark performance:
 
 | Model                | Precision | Device             | GPU VRAM    | Speed (tokens/sec) | load time (s) |
 | -------------------- | --------- | ------------------ | ----------- | -------------------- | ------------- |
-| Llama-2-7b-chat-hf   | 8bit      | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76                 | 641.36        |
+| Llama-2-7b-chat-hf   | 8 bit     | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76                 | 641.36        |
 | Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 17.97                | 192.91        |
 | llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4 GB RAM   | 5.28               | 0.20          |
 | llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4 GB RAM | 9.56 | 0.47 |
