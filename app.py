@@ -2,7 +2,6 @@ import os
 from typing import Iterator
 
 import gradio as gr
-
 from dotenv import load_dotenv
 from distutils.util import strtobool
 
@@ -10,56 +9,25 @@ from llama2_wrapper import LLAMA2_WRAPPER
 
 load_dotenv()
 
-DEFAULT_SYSTEM_PROMPT = (
-    os.getenv("DEFAULT_SYSTEM_PROMPT")
-    if os.getenv("DEFAULT_SYSTEM_PROMPT") is not None
-    else ""
-)
-MAX_MAX_NEW_TOKENS = (
-    int(os.getenv("MAX_MAX_NEW_TOKENS"))
-    if os.getenv("DEFAULT_MAX_NEW_TOKENS") is not None
-    else 2048
-)
-DEFAULT_MAX_NEW_TOKENS = (
-    int(os.getenv("DEFAULT_MAX_NEW_TOKENS"))
-    if os.getenv("DEFAULT_MAX_NEW_TOKENS") is not None
-    else 1024
-)
-MAX_INPUT_TOKEN_LENGTH = (
-    int(os.getenv("MAX_INPUT_TOKEN_LENGTH"))
-    if os.getenv("MAX_INPUT_TOKEN_LENGTH") is not None
-    else 4000
-)
+DEFAULT_SYSTEM_PROMPT = os.getenv("DEFAULT_SYSTEM_PROMPT", "")
+MAX_MAX_NEW_TOKENS = int(os.getenv("MAX_MAX_NEW_TOKENS", 2048))
+DEFAULT_MAX_NEW_TOKENS = int(os.getenv("DEFAULT_MAX_NEW_TOKENS", 1024))
+MAX_INPUT_TOKEN_LENGTH = int(os.getenv("MAX_INPUT_TOKEN_LENGTH", 4000))
 
 MODEL_PATH = os.getenv("MODEL_PATH")
 assert MODEL_PATH is not None, f"MODEL_PATH is required, got: {MODEL_PATH}"
+BACKEND_TYPE = os.getenv("BACKEND_TYPE")
+assert BACKEND_TYPE is not None, f"BACKEND_TYPE is required, got: {BACKEND_TYPE}"
 
 LOAD_IN_8BIT = bool(strtobool(os.getenv("LOAD_IN_8BIT", "True")))
 
-LOAD_IN_4BIT = bool(strtobool(os.getenv("LOAD_IN_4BIT", "True")))
-
-LLAMA_CPP = bool(strtobool(os.getenv("LLAMA_CPP", "True")))
-
-if LLAMA_CPP:
-    print("Running on CPU with llama.cpp.")
-else:
-    import torch
-
-    if torch.cuda.is_available():
-        print("Running on GPU with torch transformers.")
-    else:
-        print("CUDA not found.")
-
-config = {
-    "model_name": MODEL_PATH,
-    "load_in_8bit": LOAD_IN_8BIT,
-    "load_in_4bit": LOAD_IN_4BIT,
-    "llama_cpp": LLAMA_CPP,
-    "MAX_INPUT_TOKEN_LENGTH": MAX_INPUT_TOKEN_LENGTH,
-}
-llama2_wrapper = LLAMA2_WRAPPER(config)
-llama2_wrapper.init_tokenizer()
-llama2_wrapper.init_model()
+llama2_wrapper = LLAMA2_WRAPPER(
+    model_path=MODEL_PATH,
+    backend_type=BACKEND_TYPE,
+    max_tokens=MAX_INPUT_TOKEN_LENGTH,
+    load_in_8bit=LOAD_IN_8BIT,
+    # verbose=True,
+)
 
 DESCRIPTION = """
 # llama2-webui
