@@ -5,7 +5,7 @@
 | Model                             | Precision | Device | GPU VRAM | Speed (tokens/sec) | load time (s) |
 | --------------------------------- | --------- | ---------- | ---------------------- | ---------------- | ---------------- |
 | Llama-2-7b-chat-hf | 16 bit |  |  |              |              |
-| Llama-2-7b-chat-hf          |   8bit   | NVIDIA RTX 2080 Ti    | 7.7 GB VRAM | 3.76 | 783.87 |
+| Llama-2-7b-chat-hf          |   8bit   | NVIDIA RTX 2080 Ti    | 7.7 GB VRAM | 3.76 | 641.36 |
 | Llama-2-7b-Chat-GPTQ        |   4bit   | NVIDIA RTX 2080 Ti    | 5.8 GB VRAM | 17.97 | 192.91 |
 | Llama-2-7b-Chat-GPTQ        |   4bit   | NVIDIA GTX 1660 Super | 4.8 GB VRAM | 8.5   | 262.74        |
 | Llama-2-13b-chat-hf               |   16 bit   |  |                  |                  |                  |
