@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "llama2-wrapper"
-version = "0.1.5"
+version = "0.1.6"
 description = "Running Llama 2 on GPU or CPU from anywhere (Linux/Windows/Mac)."
 authors = ["liltom-eth <liltom.eth@gmail.com>"]
 license = "MIT"
