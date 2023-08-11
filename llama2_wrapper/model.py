@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 from threading import Thread
 from typing import Any, Iterator
@@ -6,12 +7,27 @@ from typing import Any, Iterator
 class LLAMA2_WRAPPER:
     def __init__(
         self,
-        model_path: str = None,
+        model_path: str = "./models/llama-2-7b-chat.ggmlv3.q4_0.bin",
         backend_type: str = "llama.cpp",
         max_tokens: int = 4000,
         load_in_8bit: bool = True,
         verbose: bool = False,
     ):
+        """Load a llama2 model from `model_path`.
+
+        Args:
+            model_path: Path to the model.
+            backend_type: Backend for llama2, options: llama.cpp, gptq, transformers
+            max_tokens: Maximum context size.
+            load_in_8bit: Use bitsandbytes to run model in 8 bit mode (only for transformers models).
+            verbose: Print verbose output to stderr.
+
+        Raises:
+            ValueError: If the model path does not exist.
+
+        Returns:
+            A LLAMA2_WRAPPER instance.
+        """
         self.model_path = model_path
         self.backend_type = BackendType.get_type(backend_type)
         self.max_tokens = max_tokens
@@ -31,6 +47,23 @@ class LLAMA2_WRAPPER:
                 print("Running on GPU with backend torch transformers.")
             else:
                 print("GPU CUDA not found.")
+
+        # Download default ggml model
+        if self.model_path == "./models/llama-2-7b-chat.ggmlv3.q4_0.bin":
+            print("Use default model path: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin")
+            if not os.path.exists(self.model_path):
+                print(
+                    "Start downloading model to: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin"
+                )
+                from huggingface_hub import hf_hub_download
+
+                hf_hub_download(
+                    repo_id="TheBloke/Llama-2-7B-Chat-GGML",
+                    filename="llama-2-7b-chat.ggmlv3.q4_0.bin",
+                    local_dir="./models/",
+                )
+            else:
+                print("Model exists.")
 
         self.init_tokenizer()
         self.init_model()
@@ -128,6 +161,26 @@ class LLAMA2_WRAPPER:
         repetition_penalty: float = 1.0,
         **kwargs: Any,
     ) -> Iterator[str]:
+        """Create a generator of response from a prompt.
+
+        Examples:
+            >>> llama2_wrapper = LLAMA2_WRAPPER()
+            >>> prompt = get_prompt("Hi do you know Pytorch?")
+            >>> for response in llama2_wrapper.generate(prompt):
+            ...     print(response)
+
+        Args:
+            prompt: The prompt to generate text from.
+            max_new_tokens: The maximum number of tokens to generate.
+            temperature: The temperature to use for sampling.
+            top_p: The top-p value to use for sampling.
+            top_k: The top-k value to use for sampling.
+            repetition_penalty: The penalty to apply to repeated tokens.
+            kwargs: all other arguments.
+
+        Yields:
+            The generated text.
+        """
         if self.backend_type is BackendType.LLAMA_CPP:
             inputs = self.model.tokenize(bytes(prompt, "utf-8"))
 
@@ -187,6 +240,24 @@ class LLAMA2_WRAPPER:
         top_k: int = 40,
         repetition_penalty: float = 1.0,
     ) -> Iterator[str]:
+        """Create a generator of response from a chat message.
+        Process message to llama2 prompt with with chat history
+        and system_prompt for chatbot.
+
+        Args:
+            message: The origianl chat message to generate text from.
+            chat_history: Chat history list from chatbot.
+            system_prompt: System prompt for chatbot.
+            max_new_tokens: The maximum number of tokens to generate.
+            temperature: The temperature to use for sampling.
+            top_p: The top-p value to use for sampling.
+            top_k: The top-k value to use for sampling.
+            repetition_penalty: The penalty to apply to repeated tokens.
+            kwargs: all other arguments.
+
+        Yields:
+            The generated text.
+        """
         prompt = get_prompt(message, chat_history, system_prompt)
         return self.generate(
             prompt, max_new_tokens, temperature, top_p, top_k, repetition_penalty
@@ -202,8 +273,31 @@ class LLAMA2_WRAPPER:
         repetition_penalty: float = 1.0,
         **kwargs: Any,
     ) -> str:
+        """Generate text from a prompt.
+
+        Examples:
+            >>> llama2_wrapper = LLAMA2_WRAPPER()
+            >>> prompt = get_prompt("Hi do you know Pytorch?")
+            >>> print(llama2_wrapper(prompt))
+
+        Args:
+            prompt: The prompt to generate text from.
+            max_new_tokens: The maximum number of tokens to generate.
+            temperature: The temperature to use for sampling.
+            top_p: The top-p value to use for sampling.
+            top_k: The top-k value to use for sampling.
+            repetition_penalty: The penalty to apply to repeated tokens.
+            kwargs: all other arguments.
+
+        Raises:
+            ValueError: If the requested tokens exceed the context window.
+            RuntimeError: If the prompt fails to tokenize or the model fails to evaluate the prompt.
+
+        Returns:
+            Generated text.
+        """
         if self.backend_type is BackendType.LLAMA_CPP:
-            return self.model.__call__(
+            output = self.model.__call__(
                 prompt,
                 max_tokens=max_new_tokens,
                 temperature=temperature,
@@ -212,9 +306,10 @@ class LLAMA2_WRAPPER:
                 repeat_penalty=repetition_penalty,
                 **kwargs,
             )
+            return output["choices"][0]["text"]
         else:
             inputs = self.tokenizer([prompt], return_tensors="pt").input_ids.to("cuda")
-            output = self.model.generate(
+            output_ids = self.model.generate(
                 inputs=inputs,
                 max_new_tokens=max_new_tokens,
                 temperature=temperature,
@@ -223,12 +318,27 @@ class LLAMA2_WRAPPER:
                 repetition_penalty=repetition_penalty,
                 **kwargs,
             )
-            return output, self.tokenizer.decode(output[0])
+            output = self.tokenizer.decode(output_ids[0])
+            return output.split("[/INST]")[1].split("</s>")[0]
 
 
 def get_prompt(
     message: str, chat_history: list[tuple[str, str]] = [], system_prompt: str = ""
 ) -> str:
+    """Process message to llama2 prompt with with chat history
+    and system_prompt for chatbot.
+
+    Examples:
+        >>> prompt = get_prompt("Hi do you know Pytorch?")
+
+    Args:
+        message: The origianl chat message to generate text from.
+        chat_history: Chat history list from chatbot.
+        system_prompt: System prompt for chatbot.
+
+    Yields:
+        prompt string.
+    """
     texts = [f"[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n"]
     for user_input, response in chat_history:
         texts.append(f"{user_input.strip()} [/INST] {response.strip()} </s><s> [INST] ")
