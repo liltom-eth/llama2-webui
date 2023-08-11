@@ -11,3 +11,4 @@ tqdm==4.65.0
 python-dotenv==1.0.0
 llama-cpp-python== 0.1.77
 memory-profiler==0.61.0
+huggingface-hub==0.16.4
