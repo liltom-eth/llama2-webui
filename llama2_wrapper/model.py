@@ -7,7 +7,7 @@ from typing import Any, Iterator
 class LLAMA2_WRAPPER:
     def __init__(
         self,
-        model_path: str = "./models/llama-2-7b-chat.ggmlv3.q4_0.bin",
+        model_path: str = "",
         backend_type: str = "llama.cpp",
         max_tokens: int = 4000,
         load_in_8bit: bool = True,
@@ -48,22 +48,38 @@ class LLAMA2_WRAPPER:
             else:
                 print("GPU CUDA not found.")
 
-        # Download default ggml model
-        if self.model_path == "./models/llama-2-7b-chat.ggmlv3.q4_0.bin":
-            print("Use default model path: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin")
-            if not os.path.exists(self.model_path):
-                print(
-                    "Start downloading model to: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin"
-                )
-                from huggingface_hub import hf_hub_download
+        self.default_llamacpp_path = "./models/llama-2-7b-chat.ggmlv3.q4_0.bin"
+        self.default_gptq_path = "./models/Llama-2-7b-Chat-GPTQ"
+        # Download default ggml/gptq model
+        if self.model_path == "":
+            print("Model path is empty.")
+            if self.backend_type is BackendType.LLAMA_CPP:
+                print("Use default llama.cpp model path: " + self.default_llamacpp_path)
+                if not os.path.exists(self.default_llamacpp_path):
+                    print("Start downloading model to: " + self.default_llamacpp_path)
+                    from huggingface_hub import hf_hub_download
 
-                hf_hub_download(
-                    repo_id="TheBloke/Llama-2-7B-Chat-GGML",
-                    filename="llama-2-7b-chat.ggmlv3.q4_0.bin",
-                    local_dir="./models/",
-                )
-            else:
-                print("Model exists.")
+                    hf_hub_download(
+                        repo_id="TheBloke/Llama-2-7B-Chat-GGML",
+                        filename="llama-2-7b-chat.ggmlv3.q4_0.bin",
+                        local_dir="./models/",
+                    )
+                else:
+                    print("Model exists in ./models/llama-2-7b-chat.ggmlv3.q4_0.bin.")
+                self.model_path = self.default_llamacpp_path
+            elif self.backend_type is BackendType.GPTQ:
+                print("Use default gptq model path: " + self.default_gptq_path)
+                if not os.path.exists(self.default_gptq_path):
+                    print("Start downloading model to: " + self.default_gptq_path)
+                    from huggingface_hub import snapshot_download
+
+                    snapshot_download(
+                        "TheBloke/Llama-2-7b-Chat-GPTQ",
+                        local_dir=self.default_gptq_path,
+                    )
+                else:
+                    print("Model exists in " + self.default_gptq_path)
+                self.model_path = self.default_gptq_path
 
         self.init_tokenizer()
         self.init_model()
