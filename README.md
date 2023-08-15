@@ -2,43 +2,39 @@
 
 Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Mac). 
 - Supporting all Llama 2 models (7B, 13B, 70B, GPTQ, GGML) with 8-bit, 4-bit mode. 
-- Supporting GPU inference with at least 6 GB VRAM, and CPU inference.
+- Use [llama2-wrapper](https://pypi.org/project/llama2-wrapper/) as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb). 
 
 ![screenshot](./static/screenshot.png)
 
 ## Features
 
 - Supporting models: [Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), all [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), all [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) ...
-- Supporting model backends
-  - Nvidia GPU: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ)
-    - GPU inference with at least 6 GB VRAM
-
-  - CPU, Mac/AMD GPU: [llama.cpp](https://github.com/ggerganov/llama.cpp)
-    - CPU inference [Demo](https://twitter.com/liltom_eth/status/1682791729207070720?s=20) on Macbook Air.
-
-- Web UI interface: gradio 
-
+- Supporting model backends: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ), [llama.cpp](https://github.com/ggerganov/llama.cpp)
+- Demos: [Run Llama2 on MacBook Air](https://twitter.com/liltom_eth/status/1682791729207070720?s=20); [Run Llama2 on Colab T4 GPU](./colab/Llama_2_7b_Chat_GPTQ.ipynb)
+- Use  [llama2-wrapper](https://pypi.org/project/llama2-wrapper/)  as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb).  
 - [News](./docs/news.md), [Benchmark](./docs/performance.md), [Issue Solutions](./docs/issues.md)
 
 ## Contents
 
 - [Install](#install)
+- [Usage](#usage)
+  - [Start Web UI](#start-web-ui)
+    - [Env Examples](#env-examples)
+  - [Use llama2-wrapper for Your App](#use-llama2-wrapper-for-your-app)
+  - [Benchmark](#benchmark)
 - [Download Llama-2 Models](#download-llama-2-models)
   - [Model List](#model-list)
   - [Download Script](#download-script)
-- [Usage](#usage)
-  - [Config Examples](#config-examples)
-  - [Start Web UI](#start-web-ui)
+- [Tips](#tips)
   - [Run on Nvidia GPU](#run-on-nvidia-gpu)
     - [Run on Low Memory Nvidia GPU with bitsandbytes 8 bit](#run-on-low-memory-nvidia-gpu-with-bitsandbytes-8-bit)
     - [Run on Low Memory Nvidia GPU with GPTQ 4 bit](#run-on-low-memory-nvidia-gpu-with-gptq-4-bit)
   - [Run on CPU](#run-on-cpu)
     - [Mac Metal Acceleration](#mac-metal-acceleration)
     - [AMD/Nvidia GPU Acceleration](#amdnvidia-gpu-acceleration)
-  - [Benchmark](#benchmark)
 - [License](#license)
 - [Contributing](#contributing)
-  
+
 
 
 ## Install
@@ -58,10 +54,109 @@ pip install -r requirements.txt
 -  `pip install bitsandbytes==0.38.1`
 
 `bitsandbytes` also need a special install for Windows:
+
 ```
 pip uninstall bitsandbytes
 pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/download/wheels/bitsandbytes-0.41.0-py3-none-win_amd64.whl
 ```
+
+## Usage
+
+### Start Web UI
+
+Run chatbot simply with web UI:
+
+```bash
+python app.py
+```
+
+`app.py` will load the default config `.env` which uses `llama.cpp` as the backend to run `llama-2-7b-chat.ggmlv3.q4_0.bin` model for inference. The model `llama-2-7b-chat.ggmlv3.q4_0.bin` will be automatically downloaded.
+
+```bash
+Running on backend llama.cpp.
+Use default model path: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin
+Start downloading model to: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin
+```
+
+You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). 
+
+#### Env Examples
+
+There are some examples in `./env_examples/` folder.
+
+| Model Setup                                            | Example .env                |
+| ------------------------------------------------------ | --------------------------- |
+| Llama-2-7b-chat-hf 8-bit (transformers backend)        | .env.7b_8bit_example        |
+| Llama-2-7b-Chat-GPTQ 4-bit (gptq transformers backend) | .env.7b_gptq_example        |
+| Llama-2-7B-Chat-GGML 4bit (llama.cpp backend)          | .env.7b_ggmlv3_q4_0_example |
+| Llama-2-13b-chat-hf (transformers backend)             | .env.13b_example            |
+| ...                                                    | ...                         |
+
+### Use llama2-wrapper for Your App
+
+🔥 For developers, we released `llama2-wrapper`  as a llama2 backend wrapper in [PYPI](https://pypi.org/project/llama2-wrapper/).
+
+Use  `llama2-wrapper`  as your local llama2 backend to answer questions and more, [colab example](./colab/ggmlv3_q4_0.ipynb):
+
+```python
+# pip install llama2-wrapper
+from llama2_wrapper import LLAMA2_WRAPPER, get_prompt 
+llama2_wrapper = LLAMA2_WRAPPER()
+# Default running on backend llama.cpp.
+# Automatically downloading model to: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin
+prompt = "Do you know Pytorch"
+answer = llama2_wrapper(get_prompt(prompt), temperature=0.9)
+```
+
+Run gptq llama2 model on Nvidia GPU, [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb):
+
+```python
+from llama2_wrapper import LLAMA2_WRAPPER 
+llama2_wrapper = LLAMA2_WRAPPER(backend_type="gptq")
+# Automatically downloading model to: ./models/Llama-2-7b-Chat-GPTQ
+```
+
+Run llama2 7b with bitsandbytes 8 bit with a `model_path`:
+
+```python
+from llama2_wrapper import LLAMA2_WRAPPER 
+llama2_wrapper = LLAMA2_WRAPPER(
+	model_path = "./models/Llama-2-7b-chat-hf",
+  backend_type = "transformers",
+  load_in_8bit = True
+)
+```
+
+### Benchmark
+
+Run benchmark script to compute performance on your device:
+
+```bash
+python benchmark.py
+```
+
+You can also select the number of times the benchmark will be run :
+
+```bash
+python benchmark.py --iter NB_OF_ITERATIONS
+```
+
+ By default, the number of iterations is 5, but if you want a faster result or a more accurate one 
+ you can set it to whatever value you want, but please only report results with at least 5 iterations.
+
+`benchmark.py` will load the same `.env` as `app.py`.
+
+Some benchmark performance:
+
+| Model                       | Precision | Device             | GPU VRAM    | Speed (tokens/sec) | load time (s) |
+| --------------------------- | --------- | ------------------ | ----------- | ------------------ | ------------- |
+| Llama-2-7b-chat-hf          | 8 bit     | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76               | 641.36        |
+| Llama-2-7b-Chat-GPTQ        | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 18.85              | 192.91        |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4 GB RAM  | 13.70              | 0.13          |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 Metal     | 5.4 GB RAM  | 12.60              | 0.10          |
+| llama-2-7b-chat.ggmlv3.q2_K | 2 bit     | Intel i7-8700      | 4.5 GB RAM  | 7.88               | 31.90         |
+
+Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
 
 ## Download Llama-2 Models
 
@@ -103,31 +198,7 @@ For GPTQ models like [TheBloke/Llama-2-7b-Chat-GPTQ](https://huggingface.co/TheB
 
 For GGML models like [TheBloke/Llama-2-7B-Chat-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML), you can directly download without requesting access.
 
-## Usage
-
-### Start Web UI
-
-Run chatbot with web UI:
-
-```
-python app.py
-```
-
-`app.py` will load the default config `.env` which using `llama.cpp` as the backend to run `llama-2-7b-chat.ggmlv3.q4_0.bin` model for inference.
-
-You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). 
-
-### Env Examples
-
-There are some examples in `./env_examples/` folder.
-
-| Model Setup                                            | Example .env                |
-| ------------------------------------------------------ | --------------------------- |
-| Llama-2-7b-chat-hf 8-bit (transformers backend)        | .env.7b_8bit_example        |
-| Llama-2-7b-Chat-GPTQ 4-bit (gptq transformers backend) | .env.7b_gptq_example        |
-| Llama-2-7B-Chat-GGML 4bit (llama.cpp backend)          | .env.7b_ggmlv3_q4_0_example |
-| Llama-2-13b-chat-hf (transformers backend)             | .env.13b_example            |
-| ...                                                    | ...                         |
+## Tips
 
 ### Run on Nvidia GPU
 
@@ -183,36 +254,9 @@ If you would like to use AMD/Nvidia GPU for acceleration, check this:
 
 - [Installation with OpenBLAS / cuBLAS / CLBlast / Metal](https://github.com/abetlen/llama-cpp-python#installation-with-openblas--cublas--clblast--metal)
 
-### Benchmark
 
-Run benchmark script to compute performance on your device:
 
-```bash
-python benchmark.py
-```
 
-You can also select the number of times the benchmark will be run :
-
-```bash
-python benchmark.py --iter NB_OF_ITERATIONS
-```
-
- By default, the number of iterations is 5, but if you want a faster result or a more accurate one 
- you can set it to whatever value you want, but please only report results with at least 5 iterations.
-
-`benchmark.py` will load the same `.env` as `app.py`.
-
-Some benchmark performance:
-
-| Model                | Precision | Device             | GPU VRAM    | Speed (tokens/sec) | load time (s) |
-| -------------------- | --------- | ------------------ | ----------- | -------------------- | ------------- |
-| Llama-2-7b-chat-hf   | 8 bit     | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76                 | 641.36        |
-| Llama-2-7b-Chat-GPTQ | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 18.85            | 192.91        |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4 GB RAM   | 13.70          | 0.13      |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit | Apple M2 Metal | 5.4 GB RAM | 12.60 | 0.10 |
-| llama-2-7b-chat.ggmlv3.q2_K | 2 bit | Intel i7-8700 | 4.5 GB RAM | 7.88 | 31.90 |
-
-Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
 
 ## License
 
