@@ -6,6 +6,7 @@ from uu import Error
 from dotenv import load_dotenv
 from distutils.util import strtobool
 from memory_profiler import memory_usage
+from tomlkit import boolean
 from tqdm import tqdm
 
 from llama2_wrapper import LLAMA2_WRAPPER
@@ -48,6 +49,20 @@ def run_iteration(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--iter", type=int, default=5, help="Number of iterations")
+    parser.add_argument("--model_path", type=str, default="", help="model path")
+    parser.add_argument(
+        "--backend_type",
+        type=str,
+        default="",
+        help="Backend options: llama.cpp, gptq, transformers",
+    )
+    parser.add_argument(
+        "--load_in_8bit",
+        type=bool,
+        default=False,
+        help="Whether to use bitsandbytes 8 bit.",
+    )
+
     args = parser.parse_args()
 
     load_dotenv()
@@ -63,6 +78,13 @@ def main():
     assert BACKEND_TYPE is not None, f"BACKEND_TYPE is required, got: {BACKEND_TYPE}"
 
     LOAD_IN_8BIT = bool(strtobool(os.getenv("LOAD_IN_8BIT", "True")))
+
+    if args.model_path != "":
+        MODEL_PATH = args.model_path
+    if args.backend_type != "":
+        BACKEND_TYPE = args.backend_type
+    if args.load_in_8bit:
+        LOAD_IN_8BIT = True
 
     # Initialization
     init_tic = time.perf_counter()
