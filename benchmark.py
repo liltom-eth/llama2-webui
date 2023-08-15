@@ -6,7 +6,6 @@ from uu import Error
 from dotenv import load_dotenv
 from distutils.util import strtobool
 from memory_profiler import memory_usage
-from tomlkit import boolean
 from tqdm import tqdm
 
 from llama2_wrapper import LLAMA2_WRAPPER
