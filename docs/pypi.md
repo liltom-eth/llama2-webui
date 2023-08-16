@@ -19,7 +19,11 @@ pip install llama2-wrapper
 
 ## Usage
 
-Use `llama2-wrapper` to run ggml llama2 model on CPU, [colab example](https://github.com/liltom-eth/llama2-webui/blob/main/colab/ggmlv3_q4_0.ipynb):
+###  `__call__`
+
+`__call__()` is the function to generate text from a prompt. 
+
+For example, run ggml llama2 model on CPU, [colab example](https://github.com/liltom-eth/llama2-webui/blob/main/colab/ggmlv3_q4_0.ipynb):
 
 ```python
 from llama2_wrapper import LLAMA2_WRAPPER, get_prompt 
@@ -27,6 +31,7 @@ llama2_wrapper = LLAMA2_WRAPPER()
 # Default running on backend llama.cpp.
 # Automatically downloading model to: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin
 prompt = "Do you know Pytorch"
+# llama2_wrapper() will run __call__()
 answer = llama2_wrapper(get_prompt(prompt), temperature=0.9)
 ```
 
@@ -47,4 +52,65 @@ llama2_wrapper = LLAMA2_WRAPPER(
   backend_type = "transformers",
   load_in_8bit = True
 )
+```
+
+### generate
+
+`generate()` is the function to create a generator of response from a prompt.
+
+This is useful when you want to stream the output like typing in the chatbot.
+
+```python
+llama2_wrapper = LLAMA2_WRAPPER()
+prompt = get_prompt("Hi do you know Pytorch?")
+for response in llama2_wrapper.generate(prompt):
+	print(response)
+
+```
+
+The response will be like:
+
+```
+Yes, 
+Yes, I'm 
+Yes, I'm familiar 
+Yes, I'm familiar with 
+Yes, I'm familiar with PyTorch! 
+...
+```
+
+### run
+
+`run()` is similar to `generate()`, but `run()`can also accept `chat_history`and `system_prompt` from the users.
+
+It will process the input message to llama2 prompt template with `chat_history` and `system_prompt` for a chatbot-like app.
+
+### get_prompt
+
+`get_prompt()` will process the input message to llama2 prompt with `chat_history` and `system_prompt`for chatbot.
+
+By default, `chat_history` and `system_prompt` are empty and `get_prompt()` will add llama2 prompt template to your message:
+
+```python
+prompt = get_prompt("Hi do you know Pytorch?")
+```
+
+prompt will be:
+
+```
+[INST] <<SYS>>
+
+<</SYS>>
+
+Hi do you know Pytorch? [/INST]
+```
+
+If use `get_prompt("Hi do you know Pytorch?", system_prompt="You are a helpful...")`:
+
+```
+[INST] <<SYS>>
+You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.
+<</SYS>>
+
+Hi do you know Pytorch? [/INST]
 ```

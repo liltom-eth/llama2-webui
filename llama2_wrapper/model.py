@@ -257,7 +257,7 @@ class LLAMA2_WRAPPER:
         repetition_penalty: float = 1.0,
     ) -> Iterator[str]:
         """Create a generator of response from a chat message.
-        Process message to llama2 prompt with with chat history
+        Process message to llama2 prompt with chat history
         and system_prompt for chatbot.
 
         Args:
@@ -341,7 +341,7 @@ class LLAMA2_WRAPPER:
 def get_prompt(
     message: str, chat_history: list[tuple[str, str]] = [], system_prompt: str = ""
 ) -> str:
-    """Process message to llama2 prompt with with chat history
+    """Process message to llama2 prompt with chat history
     and system_prompt for chatbot.
 
     Examples:
