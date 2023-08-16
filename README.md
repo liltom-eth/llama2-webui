@@ -21,14 +21,14 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
   - [Start Web UI](#start-web-ui)
     - [Env Examples](#env-examples)
   - [Use llama2-wrapper for Your App](#use-llama2-wrapper-for-your-app)
-  - [Benchmark](#benchmark)
+- [Benchmark](#benchmark)
 - [Download Llama-2 Models](#download-llama-2-models)
   - [Model List](#model-list)
   - [Download Script](#download-script)
 - [Tips](#tips)
   - [Run on Nvidia GPU](#run-on-nvidia-gpu)
-    - [Run on Low Memory Nvidia GPU with bitsandbytes 8 bit](#run-on-low-memory-nvidia-gpu-with-bitsandbytes-8-bit)
-    - [Run on Low Memory Nvidia GPU with GPTQ 4 bit](#run-on-low-memory-nvidia-gpu-with-gptq-4-bit)
+    - [Run bitsandbytes 8 bit](#run-bitsandbytes-8-bit)
+    - [Run GPTQ 4 bit](#run-gptq-4-bit)
   - [Run on CPU](#run-on-cpu)
     - [Mac Metal Acceleration](#mac-metal-acceleration)
     - [AMD/Nvidia GPU Acceleration](#amdnvidia-gpu-acceleration)
@@ -127,34 +127,36 @@ llama2_wrapper = LLAMA2_WRAPPER(
 )
 ```
 
-### Benchmark
+## Benchmark
 
-Run benchmark script to compute performance on your device:
+Run benchmark script to compute performance on your device, `benchmark.py` will load the same `.env` as `app.py`.:
 
 ```bash
 python benchmark.py
 ```
 
-You can also select the number of times the benchmark will be run :
+You can also select the `iter`, `backend_type` and `model_path` the benchmark will be run (overwrite .env args) :
 
 ```bash
-python benchmark.py --iter NB_OF_ITERATIONS
+python benchmark.py --iter NB_OF_ITERATIONS --backend_type gptq
 ```
 
  By default, the number of iterations is 5, but if you want a faster result or a more accurate one 
  you can set it to whatever value you want, but please only report results with at least 5 iterations.
 
-`benchmark.py` will load the same `.env` as `app.py`.
+This [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb) also show you how to benchmark gptq model on free Google Colab T4 GPU.
 
 Some benchmark performance:
 
-| Model                       | Precision | Device             | GPU VRAM    | Speed (tokens/sec) | load time (s) |
-| --------------------------- | --------- | ------------------ | ----------- | ------------------ | ------------- |
-| Llama-2-7b-chat-hf          | 8 bit     | NVIDIA RTX 2080 Ti | 7.7 GB VRAM | 3.76               | 641.36        |
-| Llama-2-7b-Chat-GPTQ        | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM | 18.85              | 192.91        |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4 GB RAM  | 13.70              | 0.13          |
-| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 Metal     | 5.4 GB RAM  | 12.60              | 0.10          |
-| llama-2-7b-chat.ggmlv3.q2_K | 2 bit     | Intel i7-8700      | 4.5 GB RAM  | 7.88               | 31.90         |
+| Model                       | Precision | Device             | RAM / GPU VRAM | Speed (tokens/sec) | load time (s) |
+| --------------------------- | --------- | ------------------ | -------------- | ------------------ | ------------- |
+| Llama-2-7b-chat-hf          | 8 bit     | NVIDIA RTX 2080 Ti | 7.7 GB VRAM    | 3.76               | 641.36        |
+| Llama-2-7b-Chat-GPTQ        | 4 bit     | NVIDIA RTX 2080 Ti | 5.8 GB VRAM    | 18.85              | 192.91        |
+| Llama-2-7b-Chat-GPTQ        | 4 bit     | Google Colab T4    | 5.8 GB VRAM    | 18.19              | 37.44         |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M1 Pro CPU   | 5.4 GB RAM     | 17.90              | 0.18          |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 CPU       | 5.4 GB RAM     | 13.70              | 0.13          |
+| llama-2-7b-chat.ggmlv3.q4_0 | 4 bit     | Apple M2 Metal     | 5.4 GB RAM     | 12.60              | 0.10          |
+| llama-2-7b-chat.ggmlv3.q2_K | 2 bit     | Intel i7-8700      | 4.5 GB RAM     | 7.88               | 31.90         |
 
 Check/contribute the performance of your device in the full [performance doc](./docs/performance.md).
 
@@ -206,13 +208,13 @@ The running requires around 14GB of GPU VRAM for Llama-2-7b and 28GB of GPU VRAM
 
 If you are running on multiple GPUs, the model will be loaded automatically on GPUs and split the VRAM usage. That allows you to run Llama-2-7b (requires 14GB of GPU VRAM) on a setup like 2 GPUs (11GB VRAM each).
 
-#### Run on Low Memory Nvidia GPU with bitsandbytes 8 bit
+#### Run bitsandbytes 8 bit
 
 If you do not have enough memory,  you can set up your `LOAD_IN_8BIT` as `True` in `.env`. This can reduce memory usage by around half with slightly degraded model quality. It is compatible with the CPU, GPU, and Metal backend.
 
 Llama-2-7b with 8-bit compression can run on a single GPU with 8 GB of VRAM, like an Nvidia RTX 2080Ti, RTX 4080, T4, V100 (16GB).
 
-#### Run on Low Memory Nvidia GPU with GPTQ 4 bit
+#### Run GPTQ 4 bit
 
 If you want to run 4 bit  Llama-2 model like `Llama-2-7b-Chat-GPTQ`,  you can set up your `BACKEND_TYPE` as `gptq` in `.env` like example `.env.7b_gptq_example`. 
 
