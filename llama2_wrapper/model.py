@@ -1,7 +1,7 @@
 import os
 from enum import Enum
 from threading import Thread
-from typing import Any, Iterator
+from typing import Any, Iterator, Union
 
 
 class LLAMA2_WRAPPER:
@@ -198,22 +198,19 @@ class LLAMA2_WRAPPER:
             The generated text.
         """
         if self.backend_type is BackendType.LLAMA_CPP:
-            inputs = self.model.tokenize(bytes(prompt, "utf-8"))
-
-            generator = self.model.generate(
-                inputs,
+            result = self.model(
+                prompt=prompt,
+                stream=True,
+                max_tokens=max_new_tokens,
                 top_k=top_k,
                 top_p=top_p,
-                temp=temperature,
+                temperature=temperature,
                 repeat_penalty=repetition_penalty,
                 **kwargs,
             )
             outputs = []
-            for token in generator:
-                if token == self.model.token_eos():
-                    break
-                b_text = self.model.detokenize([token])
-                text = str(b_text, encoding="utf-8", errors="ignore")
+            for part in result:
+                text = part["choices"][0]["text"]
                 outputs.append(text)
                 yield "".join(outputs)
         else:
@@ -282,13 +279,14 @@ class LLAMA2_WRAPPER:
     def __call__(
         self,
         prompt: str,
+        stream: bool = False,
         max_new_tokens: int = 1000,
         temperature: float = 0.9,
         top_p: float = 1.0,
         top_k: int = 40,
         repetition_penalty: float = 1.0,
         **kwargs: Any,
-    ) -> str:
+    ) -> Union[str, Iterator[str]]:
         """Generate text from a prompt.
 
         Examples:
@@ -313,8 +311,9 @@ class LLAMA2_WRAPPER:
             Generated text.
         """
         if self.backend_type is BackendType.LLAMA_CPP:
-            output = self.model.__call__(
+            completion_or_chunks = self.model.__call__(
                 prompt,
+                stream=stream,
                 max_tokens=max_new_tokens,
                 temperature=temperature,
                 top_p=top_p,
@@ -322,20 +321,50 @@ class LLAMA2_WRAPPER:
                 repeat_penalty=repetition_penalty,
                 **kwargs,
             )
-            return output["choices"][0]["text"]
+            if stream:
+
+                def chunk_generator(chunks):
+                    for part in chunks:
+                        chunk = part["choices"][0]["text"]
+                        yield chunk
+
+                chunks: Iterator[str] = chunk_generator(completion_or_chunks)
+                return chunks
+            return completion_or_chunks["choices"][0]["text"]
         else:
             inputs = self.tokenizer([prompt], return_tensors="pt").input_ids.to("cuda")
-            output_ids = self.model.generate(
+            generate_kwargs = dict(
                 inputs=inputs,
                 max_new_tokens=max_new_tokens,
                 temperature=temperature,
                 top_p=top_p,
                 top_k=top_k,
                 repetition_penalty=repetition_penalty,
-                **kwargs,
+                # num_beams=1,
             )
-            output = self.tokenizer.decode(output_ids[0])
-            return output.split("[/INST]")[1].split("</s>")[0]
+            generate_kwargs = (
+                generate_kwargs if kwargs is None else {**generate_kwargs, **kwargs}
+            )
+            if stream:
+                from transformers import TextIteratorStreamer
+
+                streamer = TextIteratorStreamer(
+                    self.tokenizer,
+                    timeout=10.0,
+                    skip_prompt=True,
+                    skip_special_tokens=True,
+                )
+                generate_kwargs["streamer"] = streamer
+
+                t = Thread(target=self.model.generate, kwargs=generate_kwargs)
+                t.start()
+                return streamer
+            else:
+                output_ids = self.model.generate(
+                    **generate_kwargs,
+                )
+                output = self.tokenizer.decode(output_ids[0])
+                return output.split("[/INST]")[1].split("</s>")[0]
 
 
 def get_prompt(
