@@ -1,11 +1,12 @@
 [tool.poetry]
 name = "llama2-wrapper"
-version = "0.1.6"
-description = "Running Llama 2 on GPU or CPU from anywhere (Linux/Windows/Mac)."
+version = "0.1.9"
+description = "Use llama2-wrapper as your local llama2 backend for Generative Agents / Apps"
 authors = ["liltom-eth <liltom.eth@gmail.com>"]
 license = "MIT"
 homepage = "https://github.com/liltom-eth/llama2-webui"
 repository = "https://github.com/liltom-eth/llama2-webui"
+readme = "./docs/pypi.md"
 
 packages = [{include = "llama2_wrapper"}]
 
@@ -28,6 +29,13 @@ bitsandbytes = [
 ]
 memory-profiler = "0.61.0"
 huggingface-hub = "0.16.4"
+fastapi = "0.100.0"
+uvicorn = "0.23.1"
+sse-starlette = "1.6.5"
+pydantic = "2.2.1"
+pydantic-settings = "2.0.3"
+pytest = "7.4.0"
+black = "23.7.0"
 
 
 [build-system]
