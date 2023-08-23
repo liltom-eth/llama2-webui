@@ -1,7 +1,21 @@
 import os
+import time
+import uuid
 from enum import Enum
 from threading import Thread
-from typing import Any, Iterator, Union
+from typing import Any, Iterator, Union, List
+from llama2_wrapper.types import (
+    Completion,
+    CompletionChunk,
+    ChatCompletion,
+    ChatCompletionChunk,
+    # ChatCompletionMessage,
+    Message,
+    B_INST,
+    E_INST,
+    B_SYS,
+    E_SYS,
+)
 
 
 class LLAMA2_WRAPPER:
@@ -296,6 +310,7 @@ class LLAMA2_WRAPPER:
 
         Args:
             prompt: The prompt to generate text from.
+            stream: Whether to stream the results.
             max_new_tokens: The maximum number of tokens to generate.
             temperature: The temperature to use for sampling.
             top_p: The top-p value to use for sampling.
@@ -332,7 +347,9 @@ class LLAMA2_WRAPPER:
                 return chunks
             return completion_or_chunks["choices"][0]["text"]
         else:
-            inputs = self.tokenizer([prompt], return_tensors="pt").input_ids.to("cuda")
+            inputs = self.tokenizer([prompt], return_tensors="pt").input_ids
+            prompt_tokens_len = len(inputs[0])
+            inputs = inputs.to("cuda")
             generate_kwargs = dict(
                 inputs=inputs,
                 max_new_tokens=max_new_tokens,
@@ -363,8 +380,365 @@ class LLAMA2_WRAPPER:
                 output_ids = self.model.generate(
                     **generate_kwargs,
                 )
-                output = self.tokenizer.decode(output_ids[0])
-                return output.split("[/INST]")[1].split("</s>")[0]
+                # skip prompt, skip special tokens
+                output = self.tokenizer.decode(
+                    output_ids[0][prompt_tokens_len:], skip_special_tokens=True
+                )
+                return output
+
+    def completion(
+        self,
+        prompt: str,
+        stream: bool = False,
+        max_new_tokens: int = 1000,
+        temperature: float = 0.9,
+        top_p: float = 1.0,
+        top_k: int = 40,
+        repetition_penalty: float = 1.0,
+        **kwargs: Any,
+    ) -> Union[Completion, Iterator[CompletionChunk]]:
+        """For OpenAI compatible API /v1/completions
+        Generate text from a prompt.
+
+        Examples:
+            >>> llama2_wrapper = LLAMA2_WRAPPER()
+            >>> prompt = get_prompt("Hi do you know Pytorch?")
+            >>> print(llm.completion(prompt))
+
+        Args:
+            prompt: The prompt to generate text from.
+            stream: Whether to stream the results.
+            max_new_tokens: The maximum number of tokens to generate.
+            temperature: The temperature to use for sampling.
+            top_p: The top-p value to use for sampling.
+            top_k: The top-k value to use for sampling.
+            repetition_penalty: The penalty to apply to repeated tokens.
+            kwargs: all other arguments.
+
+        Raises:
+            ValueError: If the requested tokens exceed the context window.
+            RuntimeError: If the prompt fails to tokenize or the model fails to evaluate the prompt.
+
+        Returns:
+            Response object containing the generated text.
+        """
+        completion_id: str = f"cmpl-{str(uuid.uuid4())}"
+        created: int = int(time.time())
+        model_name: str = (
+            self.backend_type + " default model"
+            if self.model_path == ""
+            else self.model_path
+        )
+        if self.backend_type is BackendType.LLAMA_CPP:
+            completion_or_chunks = self.model.__call__(
+                prompt,
+                stream=stream,
+                max_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                repeat_penalty=repetition_penalty,
+                **kwargs,
+            )
+            if stream:
+                chunks: Iterator[CompletionChunk] = completion_or_chunks
+                return chunks
+            return completion_or_chunks
+        else:
+            inputs = self.tokenizer([prompt], return_tensors="pt").input_ids
+            prompt_tokens_len = len(inputs[0])
+            inputs = inputs.to("cuda")
+            generate_kwargs = dict(
+                inputs=inputs,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                repetition_penalty=repetition_penalty,
+                # num_beams=1,
+            )
+            generate_kwargs = (
+                generate_kwargs if kwargs is None else {**generate_kwargs, **kwargs}
+            )
+            if stream:
+                from transformers import TextIteratorStreamer
+
+                streamer = TextIteratorStreamer(
+                    self.tokenizer,
+                    timeout=10.0,
+                    skip_prompt=True,
+                    skip_special_tokens=True,
+                )
+                generate_kwargs["streamer"] = streamer
+
+                t = Thread(target=self.model.generate, kwargs=generate_kwargs)
+                t.start()
+
+                def chunk_generator(chunks):
+                    for part in chunks:
+                        yield {
+                            "id": completion_id,
+                            "object": "text_completion",
+                            "created": created,
+                            "model": model_name,
+                            "choices": [
+                                {
+                                    "text": part,
+                                    "index": 0,
+                                    "logprobs": None,
+                                    "finish_reason": None,
+                                }
+                            ],
+                        }
+
+                chunks: Iterator[CompletionChunk] = chunk_generator(streamer)
+                return chunks
+
+            else:
+                output_ids = self.model.generate(
+                    **generate_kwargs,
+                )
+                total_tokens_len = len(output_ids[0])
+                output = self.tokenizer.decode(
+                    output_ids[0][prompt_tokens_len:], skip_special_tokens=True
+                )
+                completion: Completion = {
+                    "id": completion_id,
+                    "object": "text_completion",
+                    "created": created,
+                    "model": model_name,
+                    "choices": [
+                        {
+                            "text": output,
+                            "index": 0,
+                            "logprobs": None,
+                            "finish_reason": None,
+                        }
+                    ],
+                    "usage": {
+                        "prompt_tokens": prompt_tokens_len,
+                        "completion_tokens": total_tokens_len - prompt_tokens_len,
+                        "total_tokens": total_tokens_len,
+                    },
+                }
+                return completion
+
+    def chat_completion(
+        self,
+        messages: List[Message],
+        stream: bool = False,
+        max_new_tokens: int = 1000,
+        temperature: float = 0.9,
+        top_p: float = 1.0,
+        top_k: int = 40,
+        repetition_penalty: float = 1.0,
+        **kwargs: Any,
+    ) -> Union[ChatCompletion, Iterator[ChatCompletionChunk]]:
+        """For OpenAI compatible API /v1/chat/completions
+        Generate text from a dialog (chat history).
+
+        Examples:
+            >>> llama2_wrapper = LLAMA2_WRAPPER()
+            >>> dialog = [
+                    {
+                        "role":"system",
+                        "content":"You are a helpful, respectful and honest assistant. "
+                    },{
+                        "role":"user",
+                        "content":"Hi do you know Pytorch?",
+                    },
+                ]
+            >>> print(llm.chat_completion(dialog))
+
+        Args:
+            dialog: The dialog (chat history) to generate text from.
+            stream: Whether to stream the results.
+            max_new_tokens: The maximum number of tokens to generate.
+            temperature: The temperature to use for sampling.
+            top_p: The top-p value to use for sampling.
+            top_k: The top-k value to use for sampling.
+            repetition_penalty: The penalty to apply to repeated tokens.
+            kwargs: all other arguments.
+
+        Raises:
+            ValueError: If the requested tokens exceed the context window.
+            RuntimeError: If the prompt fails to tokenize or the model fails to evaluate the prompt.
+
+        Returns:
+            Response object containing the generated text.
+        """
+        completion_id: str = f"cmpl-{str(uuid.uuid4())}"
+        created: int = int(time.time())
+        model_name: str = (
+            self.backend_type + " default model"
+            if self.model_path == ""
+            else self.model_path
+        )
+        if self.backend_type is BackendType.LLAMA_CPP:
+            completion_or_chunks = self.model.create_chat_completion(
+                messages,
+                stream=stream,
+                max_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                repeat_penalty=repetition_penalty,
+                **kwargs,
+            )
+            if stream:
+                chunks: Iterator[ChatCompletionChunk] = completion_or_chunks
+                return chunks
+            return completion_or_chunks
+        else:
+            prompt = get_prompt_for_dialog(messages)
+            inputs = self.tokenizer([prompt], return_tensors="pt").input_ids
+            prompt_tokens_len = len(inputs[0])
+            inputs = inputs.to("cuda")
+            generate_kwargs = dict(
+                inputs=inputs,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                repetition_penalty=repetition_penalty,
+                # num_beams=1,
+            )
+            generate_kwargs = (
+                generate_kwargs if kwargs is None else {**generate_kwargs, **kwargs}
+            )
+            if stream:
+                from transformers import TextIteratorStreamer
+
+                streamer = TextIteratorStreamer(
+                    self.tokenizer,
+                    timeout=10.0,
+                    skip_prompt=True,
+                    skip_special_tokens=True,
+                )
+                generate_kwargs["streamer"] = streamer
+                t = Thread(target=self.model.generate, kwargs=generate_kwargs)
+                t.start()
+
+                def chunk_generator(chunks):
+                    yield {
+                        "id": "chat" + completion_id,
+                        "model": model_name,
+                        "created": created,
+                        "object": "chat.completion.chunk",
+                        "choices": [
+                            {
+                                "index": 0,
+                                "delta": {
+                                    "role": "assistant",
+                                },
+                                "finish_reason": None,
+                            }
+                        ],
+                    }
+                    for part in enumerate(chunks):
+                        yield {
+                            "id": "chat" + completion_id,
+                            "model": model_name,
+                            "created": created,
+                            "object": "chat.completion.chunk",
+                            "choices": [
+                                {
+                                    "index": 0,
+                                    "delta": {
+                                        "content": part,
+                                    },
+                                    "finish_reason": None,
+                                }
+                            ],
+                        }
+
+                chunks: Iterator[ChatCompletionChunk] = chunk_generator(streamer)
+                return chunks
+
+            else:
+                output_ids = self.model.generate(
+                    **generate_kwargs,
+                )
+                total_tokens_len = len(output_ids[0])
+                output = self.tokenizer.decode(
+                    output_ids[0][prompt_tokens_len:], skip_special_tokens=True
+                )
+                chatcompletion: ChatCompletion = {
+                    "id": "chat" + completion_id,
+                    "object": "chat.completion",
+                    "created": created,
+                    "model": model_name,
+                    "choices": [
+                        {
+                            "index": 0,
+                            "message": {
+                                "role": "assistant",
+                                "content": output,
+                            },
+                            "finish_reason": None,
+                        }
+                    ],
+                    "usage": {
+                        "prompt_tokens": prompt_tokens_len,
+                        "completion_tokens": total_tokens_len - prompt_tokens_len,
+                        "total_tokens": total_tokens_len,
+                    },
+                }
+                return chatcompletion
+
+
+def get_prompt_for_dialog(dialog: List[Message]) -> str:
+    """Process dialog (chat history) to llama2 prompt for
+    OpenAI compatible API /v1/chat/completions.
+
+    Examples:
+        >>> dialog = [
+                {
+                    "role":"system",
+                    "content":"You are a helpful, respectful and honest assistant. "
+                },{
+                    "role":"user",
+                    "content":"Hi do you know Pytorch?",
+                },
+            ]
+        >>> prompt = get_prompt_for_dialog("Hi do you know Pytorch?")
+
+    Args:
+        dialog: The dialog (chat history) to generate text from.
+
+    Yields:
+        prompt string.
+    """
+    # add "<<SYS>>\n{system_prompt}\n<</SYS>>\n\n" in first dialog
+    if dialog[0]["role"] == "system":
+        dialog = [
+            {
+                "role": dialog[1]["role"],
+                "content": B_SYS + dialog[0]["content"] + E_SYS + dialog[1]["content"],
+            }
+        ] + dialog[2:]
+    # check roles
+    assert all([msg["role"] == "user" for msg in dialog[::2]]) and all(
+        [msg["role"] == "assistant" for msg in dialog[1::2]]
+    ), (
+        "model only supports 'system', 'user' and 'assistant' roles, "
+        "starting with 'system', then 'user' and alternating (u/a/u/a/u...)"
+    )
+    # add chat history
+    texts = []
+    for prompt, answer in zip(
+        dialog[::2],
+        dialog[1::2],
+    ):
+        texts.append(
+            f"{B_INST} {(prompt['content']).strip()} {E_INST} {(answer['content']).strip()} "
+        )
+    # check last message if role is user, then add it to prompt text
+    assert (
+        dialog[-1]["role"] == "user"
+    ), f"Last message must be from user, got {dialog[-1]['role']}"
+    texts.append(f"{B_INST} {(dialog[-1]['content']).strip()} {E_INST}")
+    return "".join(texts)
 
 
 def get_prompt(

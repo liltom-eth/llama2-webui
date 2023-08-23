@@ -12,3 +12,9 @@ python-dotenv==1.0.0
 llama-cpp-python== 0.1.77
 memory-profiler==0.61.0
 huggingface-hub==0.16.4
+fastapi==0.100.0
+uvicorn==0.23.1
+sse-starlette==1.6.5
+pydantic==2.2.1
+pydantic-settings==2.0.3
+pytest==7.4.0
