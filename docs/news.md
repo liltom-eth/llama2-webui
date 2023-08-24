@@ -1,4 +1,13 @@
 # News
+- [2023/08] 🔥 For developers, we offer a web server that acts as a drop-in replacement for the OpenAI API.
+
+  - Usage: 
+
+    ```
+    python3 -m llama2_wrapper.server
+    ```
+
+
 
 - [2023/08] 🔥 For developers, we released `llama2-wrapper`  as a llama2 backend wrapper in [PYPI](https://pypi.org/project/llama2-wrapper/).
 

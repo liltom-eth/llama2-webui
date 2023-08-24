@@ -1,12 +1,16 @@
 # llama2-wrapper
 
-Use [llama2-wrapper](https://pypi.org/project/llama2-wrapper/) as your local llama2 backend for Generative Agents/Apps, [colab example](https://github.com/liltom-eth/llama2-webui/blob/main/colab/Llama_2_7b_Chat_GPTQ.ipynb). 
+- Use [llama2-wrapper](https://pypi.org/project/llama2-wrapper/) as your local llama2 backend for Generative Agents/Apps, [colab example](https://github.com/liltom-eth/llama2-webui/blob/main/colab/Llama_2_7b_Chat_GPTQ.ipynb). 
+
+- [Run OpenAI Compatible API](https://github.com/liltom-eth/llama2-webui#start-openai-compatible-api) on Llama2 models.
 
 ## Features
 
 - Supporting models: [Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), all [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), all [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) ...
 - Supporting model backends: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ), [llama.cpp](https://github.com/ggerganov/llama.cpp)
 - Demos: [Run Llama2 on MacBook Air](https://twitter.com/liltom_eth/status/1682791729207070720?s=20); [Run Llama2 on Colab T4 GPU](https://github.com/liltom-eth/llama2-webui/blob/main/colab/Llama_2_7b_Chat_GPTQ.ipynb)
+- Use  [llama2-wrapper](https://pypi.org/project/llama2-wrapper/)  as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb).  
+- [Run OpenAI Compatible API](https://github.com/liltom-eth/llama2-webui#start-openai-compatible-api) on Llama2 models.
 - [News](https://github.com/liltom-eth/llama2-webui/blob/main/docs/news.md), [Benchmark](https://github.com/liltom-eth/llama2-webui/blob/main/docs/performance.md), [Issue Solutions](https://github.com/liltom-eth/llama2-webui/blob/main/docs/issues.md)
 
 [llama2-wrapper](https://pypi.org/project/llama2-wrapper/)  is the backend and part of [llama2-webui](https://github.com/liltom-eth/llama2-webui), which can run any Llama 2 locally with gradio UI on GPU or CPU from anywhere (Linux/Windows/Mac).
@@ -17,7 +21,23 @@ Use [llama2-wrapper](https://pypi.org/project/llama2-wrapper/) as your local lla
 pip install llama2-wrapper
 ```
 
-## Usage
+## Start OpenAI Compatible  API
+
+```
+python3 -m llama2_wrapper.server
+```
+
+it will use `llama.cpp` as the backend by default to run `llama-2-7b-chat.ggmlv3.q4_0.bin` model.
+
+Start Fast API for `gptq` backend:
+
+```
+python3 -m llama2_wrapper.server --backend_type gptq
+```
+
+Navigate to http://localhost:8000/docs to see the OpenAPI documentation.
+
+## API Usage
 
 ###  `__call__`
 
@@ -52,6 +72,34 @@ llama2_wrapper = LLAMA2_WRAPPER(
   backend_type = "transformers",
   load_in_8bit = True
 )
+```
+
+### completion
+
+  `completion()`  is the function to generate text from a prompt for OpenAI compatible API `/v1/completions`.
+
+```python
+llama2_wrapper = LLAMA2_WRAPPER()
+prompt = get_prompt("Hi do you know Pytorch?")
+print(llm.completion(prompt))
+```
+
+### chat_completion
+
+  `chat_completion()`  is the function to generate text from a dialog (chat history) for OpenAI compatible API `/v1/chat/completions`.
+
+```python
+llama2_wrapper = LLAMA2_WRAPPER()
+dialog = [
+    {
+        "role":"system",
+        "content":"You are a helpful, respectful and honest assistant. "
+    },{
+        "role":"user",
+        "content":"Hi do you know Pytorch?",
+    },
+]
+print(llm.chat_completion(dialog))
 ```
 
 ### generate
@@ -109,8 +157,31 @@ If use `get_prompt("Hi do you know Pytorch?", system_prompt="You are a helpful..
 
 ```
 [INST] <<SYS>>
-You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.
+You are a helpful, respectful and honest assistant. 
 <</SYS>>
 
 Hi do you know Pytorch? [/INST]
 ```
+
+### get_prompt_for_dialog
+
+`get_prompt_for_dialog()` will process dialog (chat history) to llama2 prompt for OpenAI compatible API `/v1/chat/completions`.
+
+```python
+dialog = [
+    {
+        "role":"system",
+        "content":"You are a helpful, respectful and honest assistant. "
+    },{
+        "role":"user",
+        "content":"Hi do you know Pytorch?",
+    },
+]
+prompt = get_prompt_for_dialog("Hi do you know Pytorch?")
+# [INST] <<SYS>>
+# You are a helpful, respectful and honest assistant. 
+# <</SYS>>
+# 
+# Hi do you know Pytorch? [/INST]
+```
+

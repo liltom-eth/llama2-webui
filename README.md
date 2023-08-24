@@ -3,6 +3,7 @@
 Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Mac). 
 - Supporting all Llama 2 models (7B, 13B, 70B, GPTQ, GGML) with 8-bit, 4-bit mode. 
 - Use [llama2-wrapper](https://pypi.org/project/llama2-wrapper/) as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb). 
+- [Run OpenAI Compatible API](#start-openai-compatible-api) on Llama2 models.
 
 ![screenshot](./static/screenshot.png)
 
@@ -12,6 +13,7 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 - Supporting model backends: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ), [llama.cpp](https://github.com/ggerganov/llama.cpp)
 - Demos: [Run Llama2 on MacBook Air](https://twitter.com/liltom_eth/status/1682791729207070720?s=20); [Run Llama2 on free Colab T4 GPU](./colab/Llama_2_7b_Chat_GPTQ.ipynb)
 - Use  [llama2-wrapper](https://pypi.org/project/llama2-wrapper/)  as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb).  
+- [Run OpenAI Compatible API](#start-openai-compatible-api) on Llama2 models.
 - [News](./docs/news.md), [Benchmark](./docs/performance.md), [Issue Solutions](./docs/issues.md)
 
 ## Contents
@@ -19,8 +21,8 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 - [Install](#install)
 - [Usage](#usage)
   - [Start Web UI](#start-web-ui)
-    - [Env Examples](#env-examples)
   - [Use llama2-wrapper for Your App](#use-llama2-wrapper-for-your-app)
+  - [Start OpenAI Compatible API](#start-openai-compatible-api)
 - [Benchmark](#benchmark)
 - [Download Llama-2 Models](#download-llama-2-models)
   - [Model List](#model-list)
@@ -126,6 +128,27 @@ llama2_wrapper = LLAMA2_WRAPPER(
   load_in_8bit = True
 )
 ```
+Check [API Document](https://pypi.org/project/llama2-wrapper/) for more usages.
+
+### Start OpenAI Compatible  API
+
+`llama2-wrapper` offers a web server that acts as a drop-in replacement for the OpenAI API. This allows you to use Llama2 models with any OpenAI compatible clients, libraries or services, etc.
+
+Start Fast API:
+
+```
+python3 -m llama2_wrapper.server
+```
+
+it will use `llama.cpp` as the backend by default to run `llama-2-7b-chat.ggmlv3.q4_0.bin` model.
+
+Start Fast API for `gptq` backend:
+
+```
+python3 -m llama2_wrapper.server --backend_type gptq
+```
+
+Navigate to http://localhost:8000/docs to see the OpenAPI documentation.
 
 ## Benchmark
 
@@ -291,3 +314,4 @@ Kindly read our [Contributing Guide](CONTRIBUTING.md) to learn and understand ou
 - [https://github.com/ggerganov/llama.cpp](https://github.com/ggerganov/llama.cpp)
 - [https://github.com/TimDettmers/bitsandbytes](https://github.com/TimDettmers/bitsandbytes)
 - [https://github.com/PanQiWei/AutoGPTQ](https://github.com/PanQiWei/AutoGPTQ)
+- [https://github.com/abetlen/llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
