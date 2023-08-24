@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     )
     host: str = Field(default="localhost", description="Listen address")
     port: int = Field(default=8000, description="Listen port")
+    interrupt_requests: bool = Field(
+        default=True,
+        description="Whether to interrupt requests when a new request is received.",
+    )
 
 
 class ErrorResponse(TypedDict):
@@ -78,7 +82,7 @@ class ErrorResponseFormatters:
 
         context_window = int(match.group(2))
         prompt_tokens = int(match.group(1))
-        completion_tokens = request.max_tokens
+        completion_tokens = request.max_new_tokens
         if hasattr(request, "messages"):
             # Chat completion
             message = (
