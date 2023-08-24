@@ -130,7 +130,7 @@ llama2_wrapper = LLAMA2_WRAPPER(
 ```
 Check [API Document](https://pypi.org/project/llama2-wrapper/) for more usages.
 
-### Start OpenAI Compatible  API
+### Start OpenAI Compatible API
 
 `llama2-wrapper` offers a web server that acts as a drop-in replacement for the OpenAI API. This allows you to use Llama2 models with any OpenAI compatible clients, libraries or services, etc.
 
