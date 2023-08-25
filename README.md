@@ -137,7 +137,7 @@ Check [API Document](https://pypi.org/project/llama2-wrapper/) for more usages.
 Start Fast API:
 
 ```
-python3 -m llama2_wrapper.server
+python -m llama2_wrapper.server
 ```
 
 it will use `llama.cpp` as the backend by default to run `llama-2-7b-chat.ggmlv3.q4_0.bin` model.
@@ -145,7 +145,7 @@ it will use `llama.cpp` as the backend by default to run `llama-2-7b-chat.ggmlv3
 Start Fast API for `gptq` backend:
 
 ```
-python3 -m llama2_wrapper.server --backend_type gptq
+python -m llama2_wrapper.server --backend_type gptq
 ```
 
 Navigate to http://localhost:8000/docs to see the OpenAPI documentation.
