@@ -35,17 +35,17 @@ class Settings(BaseSettings):
         default="llama.cpp",
         description="Backend for llama2, options: llama.cpp, gptq, transformers",
     )
-    max_tokens: int = Field(default=2048, ge=1, description="Maximum context size.")
+    max_tokens: int = Field(default=4000, ge=1, description="Maximum context size.")
     load_in_8bit: bool = Field(
         default=False,
-        description="Use bitsandbytes to run model in 8 bit mode (only for transformers models).",
+        description="`Whether to use bitsandbytes to run model in 8 bit mode (only for transformers models).",
     )
     verbose: bool = Field(
         default=False,
-        description="Print verbose output to stderr.",
+        description="Whether to print verbose output to stderr.",
     )
-    host: str = Field(default="localhost", description="Listen address")
-    port: int = Field(default=8000, description="Listen port")
+    host: str = Field(default="localhost", description="API address")
+    port: int = Field(default=8000, description="API port")
     interrupt_requests: bool = Field(
         default=True,
         description="Whether to interrupt requests when a new request is received.",

@@ -158,6 +158,19 @@ python -m llama2_wrapper.server --backend_type gptq
 
 Navigate to http://localhost:8000/docs to see the OpenAPI documentation.
 
+#### Basic settings
+
+| Flag             | Description                                                  |
+| ---------------- | ------------------------------------------------------------ |
+| `-h`, `--help`   | Show this help message.                                      |
+| `--model_path`   | The path to the model to use for generating completions.     |
+| `--backend_type` | Backend for llama2, options: llama.cpp, gptq, transformers   |
+| `--max_tokens`   | Maximum context size.                                        |
+| `--load_in_8bit` | Whether to use bitsandbytes to run model in 8 bit mode (only for transformers models). |
+| `--verbose`      | Whether to print verbose output to stderr.                   |
+| `--host`         | API address                                                  |
+| `--port`         | API port                                                     |
+
 ## Benchmark
 
 Run benchmark script to compute performance on your device, `benchmark.py` will load the same `.env` as `app.py`.:
