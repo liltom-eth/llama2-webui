@@ -1,7 +1,6 @@
 import os
 import time
 import argparse
-from uu import Error
 
 from dotenv import load_dotenv
 from distutils.util import strtobool
@@ -125,7 +124,7 @@ def main():
             total_time += gen_time
             total_tokens_per_second += tokens_per_sec
             total_memory_gen += mem_gen
-        except Error as e:
+        except:
             break
     avg_time = total_time / (i + 1)
     avg_tokens_per_second = total_tokens_per_second / (i + 1)

@@ -6,3 +6,5 @@ dist
 
 __pycache__
 gradio_cached_examples
+
+.pytest_cache
