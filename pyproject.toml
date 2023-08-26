@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "llama2-wrapper"
-version = "0.1.10"
+version = "0.1.11"
 description = "Use llama2-wrapper as your local llama2 backend for Generative Agents / Apps"
 authors = ["liltom-eth <liltom.eth@gmail.com>"]
 license = "MIT"

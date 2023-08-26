@@ -1,7 +1,7 @@
 # llama2-webui
 
 Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Mac). 
-- Supporting all Llama 2 models (7B, 13B, 70B, GPTQ, GGML) with 8-bit, 4-bit mode. 
+- Supporting all Llama 2 models (7B, 13B, 70B, GPTQ, GGML, [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ)) with 8-bit, 4-bit mode. 
 - Use [llama2-wrapper](https://pypi.org/project/llama2-wrapper/) as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb). 
 - [Run OpenAI Compatible API](#start-openai-compatible-api) on Llama2 models.
 
@@ -9,7 +9,7 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 
 ## Features
 
-- Supporting models: [Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), all [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), all [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) ...
+- Supporting models: [Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML), [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ) ...
 - Supporting model backends: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ), [llama.cpp](https://github.com/ggerganov/llama.cpp)
 - Demos: [Run Llama2 on MacBook Air](https://twitter.com/liltom_eth/status/1682791729207070720?s=20); [Run Llama2 on free Colab T4 GPU](./colab/Llama_2_7b_Chat_GPTQ.ipynb)
 - Use  [llama2-wrapper](https://pypi.org/project/llama2-wrapper/)  as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb).  
@@ -81,6 +81,14 @@ Start downloading model to: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin
 ```
 
 You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). 
+
+Example run CodeLlama on gptq backend:
+
+```
+python app.py --backend_type gptq --model_path ./models/CodeLlama-7B-Instruct-GPTQ/ --share True
+```
+
+
 
 #### Env Examples
 
@@ -191,17 +199,18 @@ Llama-2-7b-Chat-GPTQ is the GPTQ model files for [Meta's Llama 2 7b Chat](https:
 
 ### Model List
 
-| Model Name                     | set MODEL_PATH in .env                   | Download URL                                                 |
-| ------------------------------ | ---------------------------------------- | ------------------------------------------------------------ |
-| meta-llama/Llama-2-7b-chat-hf  | /path-to/Llama-2-7b-chat-hf              | [Link](https://huggingface.co/llamaste/Llama-2-7b-chat-hf)   |
-| meta-llama/Llama-2-13b-chat-hf | /path-to/Llama-2-13b-chat-hf             | [Link](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)  |
-| meta-llama/Llama-2-70b-chat-hf | /path-to/Llama-2-70b-chat-hf             | [Link](https://huggingface.co/llamaste/Llama-2-70b-chat-hf)  |
-| meta-llama/Llama-2-7b-hf       | /path-to/Llama-2-7b-hf                   | [Link](https://huggingface.co/meta-llama/Llama-2-7b-hf)      |
-| meta-llama/Llama-2-13b-hf      | /path-to/Llama-2-13b-hf                  | [Link](https://huggingface.co/meta-llama/Llama-2-13b-hf)     |
-| meta-llama/Llama-2-70b-hf      | /path-to/Llama-2-70b-hf                  | [Link](https://huggingface.co/meta-llama/Llama-2-70b-hf)     |
-| TheBloke/Llama-2-7b-Chat-GPTQ  | /path-to/Llama-2-7b-Chat-GPTQ            | [Link](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ) |
-| TheBloke/Llama-2-7B-Chat-GGML  | /path-to/llama-2-7b-chat.ggmlv3.q4_0.bin | [Link](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) |
-| ...                            | ...                                      | ...                                                          |
+| Model Name                          | set MODEL_PATH in .env                   | Download URL                                                 |
+| ----------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
+| meta-llama/Llama-2-7b-chat-hf       | /path-to/Llama-2-7b-chat-hf              | [Link](https://huggingface.co/llamaste/Llama-2-7b-chat-hf)   |
+| meta-llama/Llama-2-13b-chat-hf      | /path-to/Llama-2-13b-chat-hf             | [Link](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)  |
+| meta-llama/Llama-2-70b-chat-hf      | /path-to/Llama-2-70b-chat-hf             | [Link](https://huggingface.co/llamaste/Llama-2-70b-chat-hf)  |
+| meta-llama/Llama-2-7b-hf            | /path-to/Llama-2-7b-hf                   | [Link](https://huggingface.co/meta-llama/Llama-2-7b-hf)      |
+| meta-llama/Llama-2-13b-hf           | /path-to/Llama-2-13b-hf                  | [Link](https://huggingface.co/meta-llama/Llama-2-13b-hf)     |
+| meta-llama/Llama-2-70b-hf           | /path-to/Llama-2-70b-hf                  | [Link](https://huggingface.co/meta-llama/Llama-2-70b-hf)     |
+| TheBloke/Llama-2-7b-Chat-GPTQ       | /path-to/Llama-2-7b-Chat-GPTQ            | [Link](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ) |
+| TheBloke/Llama-2-7B-Chat-GGML       | /path-to/llama-2-7b-chat.ggmlv3.q4_0.bin | [Link](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) |
+| TheBloke/CodeLlama-7B-Instruct-GPTQ | TheBloke/CodeLlama-7B-Instruct-GPTQ      | [Link](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ) |
+| ...                                 | ...                                      | ...                                                          |
 
 Running 4-bit model `Llama-2-7b-Chat-GPTQ` needs GPU with 6GB VRAM. 
 
@@ -209,7 +218,15 @@ Running 4-bit model `llama-2-7b-chat.ggmlv3.q4_0.bin` needs CPU with 6GB RAM. Th
 
 ### Download Script
 
-These models can be downloaded from the link using CMD like:
+These models can be downloaded through:
+
+```bash
+python -m llama2_wrapper.download --repo_id TheBloke/CodeLlama-7B-Python-GPTQ
+
+python -m llama2_wrapper.download --repo_id TheBloke/Llama-2-7B-Chat-GGML --filename llama-2-7b-chat.ggmlv3.q2_K.bin --save_dir ./models
+```
+
+Or use CMD like:
 
 ```bash
 # Make sure you have git-lfs installed (https://git-lfs.com)
