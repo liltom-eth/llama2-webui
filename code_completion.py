@@ -1,11 +1,6 @@
-import json
-import os
 import argparse
-import shutil
-import requests
 
 import gradio as gr
-from dotenv import load_dotenv
 from llama2_wrapper import LLAMA2_WRAPPER
 
 FIM_PREFIX = "<PRE> "
@@ -59,19 +54,6 @@ def main():
         load_in_8bit=args.load_in_8bit,
     )
 
-    theme = gr.themes.Monochrome(
-        primary_hue="indigo",
-        secondary_hue="blue",
-        neutral_hue="slate",
-        radius_size=gr.themes.sizes.radius_sm,
-        font=[
-            gr.themes.GoogleFont("Open Sans"),
-            "ui-sans-serif",
-            "system-ui",
-            "sans-serif",
-        ],
-    )
-
     def generate(
         prompt,
         temperature=0.9,
@@ -108,8 +90,24 @@ def main():
         else:
             output = prompt
 
+        # for response in stream:
+        #     output += response
+        #     yield output
+        # return output
+
+        previous_token = ""
         for response in stream:
-            output += response
+            if any([end_token in response for end_token in [EOS_STRING, EOT_STRING]]):
+                if fim_mode:
+                    output += suffix
+                    yield output
+                    return output
+                    print("output", output)
+                else:
+                    return output
+            else:
+                output += response
+            previous_token = response
             yield output
         return output
 
@@ -135,7 +133,7 @@ def main():
         <p>This is a demo to complete code with Code Llama. For instruction purposes, please use llama2-webui app.py with CodeLlama-Instruct models. </p>
     </div>
     """
-    with gr.Blocks(theme=theme, analytics_enabled=False) as demo:
+    with gr.Blocks() as demo:
         with gr.Column():
             gr.Markdown(description)
             with gr.Row():
