@@ -64,7 +64,7 @@ pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/downl
 
 ## Usage
 
-### Start Web UI
+### Start Chat UI
 
 Run chatbot simply with web UI:
 
@@ -82,25 +82,29 @@ Start downloading model to: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin
 
 You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). 
 
-Example run CodeLlama on gptq backend:
+### Start Code Llama UI
+
+We provide a code completion / filling UI for Code Llama.
+
+Base model **Code Llama** and extend model **Code Llama — Python** are not fine-tuned to follow instructions. They should be prompted so that the expected answer is the natural continuation of the prompt. That means these two models focus on code filling and code completion.
+
+Here is an example run CodeLlama code completion on llama.cpp backend:
+
+``` 
+python code_completion.py --model_path ./models/codellama-7b.ggmlv3.Q4_0.bin
+```
+
+![code_llama_playground](https://i.imgur.com/FgMUiT6.gif)
+
+**Code Llama — Instruct** trained with “natural language instruction” inputs paired with anticipated outputs. This strategic methodology enhances the model’s capacity to grasp human expectations in prompts. That means instruct models can be used in a chatbot-like app.
+
+Example run CodeLlama chat on gptq backend:
 
 ```
 python app.py --backend_type gptq --model_path ./models/CodeLlama-7B-Instruct-GPTQ/ --share True
 ```
 
-
-
-#### Env Examples
-
-There are some examples in `./env_examples/` folder.
-
-| Model Setup                                            | Example .env                |
-| ------------------------------------------------------ | --------------------------- |
-| Llama-2-7b-chat-hf 8-bit (transformers backend)        | .env.7b_8bit_example        |
-| Llama-2-7b-Chat-GPTQ 4-bit (gptq transformers backend) | .env.7b_gptq_example        |
-| Llama-2-7B-Chat-GGML 4bit (llama.cpp backend)          | .env.7b_ggmlv3_q4_0_example |
-| Llama-2-13b-chat-hf (transformers backend)             | .env.13b_example            |
-| ...                                                    | ...                         |
+![code_llama_chat](https://i.imgur.com/lQLfemB.gif)
 
 ### Use llama2-wrapper for Your App
 
@@ -254,6 +258,18 @@ For GPTQ models like [TheBloke/Llama-2-7b-Chat-GPTQ](https://huggingface.co/TheB
 For GGML models like [TheBloke/Llama-2-7B-Chat-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML), you can directly download without requesting access.
 
 ## Tips
+
+### Env Examples
+
+There are some examples in `./env_examples/` folder.
+
+| Model Setup                                            | Example .env                |
+| ------------------------------------------------------ | --------------------------- |
+| Llama-2-7b-chat-hf 8-bit (transformers backend)        | .env.7b_8bit_example        |
+| Llama-2-7b-Chat-GPTQ 4-bit (gptq transformers backend) | .env.7b_gptq_example        |
+| Llama-2-7B-Chat-GGML 4bit (llama.cpp backend)          | .env.7b_ggmlv3_q4_0_example |
+| Llama-2-13b-chat-hf (transformers backend)             | .env.13b_example            |
+| ...                                                    | ...                         |
 
 ### Run on Nvidia GPU
 
