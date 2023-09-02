@@ -20,7 +20,8 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 
 - [Install](#install)
 - [Usage](#usage)
-  - [Start Web UI](#start-web-ui)
+  - [Start Chat UI](#start-chat-ui)
+  - [Start Code Llama UI](#start-code-llama-ui)
   - [Use llama2-wrapper for Your App](#use-llama2-wrapper-for-your-app)
   - [Start OpenAI Compatible API](#start-openai-compatible-api)
 - [Benchmark](#benchmark)
@@ -28,6 +29,7 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
   - [Model List](#model-list)
   - [Download Script](#download-script)
 - [Tips](#tips)
+  - [Env Examples](#env-examples)
   - [Run on Nvidia GPU](#run-on-nvidia-gpu)
     - [Run bitsandbytes 8 bit](#run-bitsandbytes-8-bit)
     - [Run GPTQ 4 bit](#run-gptq-4-bit)
