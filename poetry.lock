@@ -1124,12 +1124,12 @@ test = ["coverage", "pytest", "pytest-cov"]
 
 [[package]]
 name = "llama-cpp-python"
-version = "0.1.77"
-description = "A Python wrapper for llama.cpp"
+version = "0.2.11"
+description = "Python bindings for the llama.cpp library"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "llama_cpp_python-0.1.77.tar.gz", hash = "sha256:76c7fae8f5386edecf38cb149bf119127e1208883f0456c6998465648d6c242e"},
+    {file = "llama_cpp_python-0.2.11.tar.gz", hash = "sha256:aae4820bb24aca61800bac771fb735dcc22b08c1374300782ab47eb65743723a"},
 ]
 
 [package.dependencies]
@@ -1138,7 +1138,10 @@ numpy = ">=1.20.0"
 typing-extensions = ">=4.5.0"
 
 [package.extras]
-server = ["fastapi (>=0.100.0)", "pydantic-settings (>=2.0.1)", "sse-starlette (>=1.6.1)", "uvicorn (>=0.22.0)"]
+all = ["llama_cpp_python[dev,server,test]"]
+dev = ["black (>=23.3.0)", "httpx (>=0.24.1)", "mkdocs (>=1.4.3)", "mkdocs-material (>=9.1.18)", "mkdocstrings[python] (>=0.22.0)", "pytest (>=7.4.0)", "twine (>=4.0.2)"]
+server = ["fastapi (>=0.100.0)", "pydantic-settings (>=2.0.1)", "sse-starlette (>=1.6.1)", "starlette-context (>=0.3.6,<0.4)", "uvicorn (>=0.22.0)"]
+test = ["httpx (>=0.24.1)", "pytest (>=7.4.0)"]
 
 [[package]]
 name = "markdown-it-py"
@@ -3221,4 +3224,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "86f3409b30794899465ecdb4e1f7cd939284ef0aa26b3dbb4fec6ccb49feae2f"
+content-hash = "f45eb625a9955d0724dfffd1801be6e90efd337007f68802de4a88e9ea414b37"

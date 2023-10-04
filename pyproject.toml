@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "llama2-wrapper"
-version = "0.1.12"
+version = "0.1.14"
 description = "Use llama2-wrapper as your local llama2 backend for Generative Agents / Apps"
 authors = ["liltom-eth <liltom.eth@gmail.com>"]
 license = "MIT"
@@ -22,7 +22,7 @@ torch = "2.0.1"
 transformers = "4.31.0"
 tqdm = "4.65.0"
 python-dotenv = "1.0.0"
-llama-cpp-python = "^0.1.77"
+llama-cpp-python = "0.2.11"
 bitsandbytes = [
     {platform = 'linux', version = "0.40.2"},
     {platform = 'darwin', version = "0.40.2"},

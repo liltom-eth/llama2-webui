@@ -62,7 +62,7 @@ class LLAMA2_WRAPPER:
             else:
                 print("GPU CUDA not found.")
 
-        self.default_llamacpp_path = "./models/llama-2-7b-chat.ggmlv3.q4_0.bin"
+        self.default_llamacpp_path = "./models/llama-2-7b-chat.Q4_0.gguf"
         self.default_gptq_path = "./models/Llama-2-7b-Chat-GPTQ"
         # Download default ggml/gptq model
         if self.model_path == "":
@@ -74,12 +74,12 @@ class LLAMA2_WRAPPER:
                     from huggingface_hub import hf_hub_download
 
                     hf_hub_download(
-                        repo_id="TheBloke/Llama-2-7B-Chat-GGML",
-                        filename="llama-2-7b-chat.ggmlv3.q4_0.bin",
+                        repo_id="TheBloke/Llama-2-7b-Chat-GGUF",
+                        filename="llama-2-7b-chat.Q4_0.gguf",
                         local_dir="./models/",
                     )
                 else:
-                    print("Model exists in ./models/llama-2-7b-chat.ggmlv3.q4_0.bin.")
+                    print("Model exists in ./models/llama-2-7b-chat.Q4_0.gguf.")
                 self.model_path = self.default_llamacpp_path
             elif self.backend_type is BackendType.GPTQ:
                 print("Use default gptq model path: " + self.default_gptq_path)

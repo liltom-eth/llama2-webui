@@ -1,4 +1,6 @@
 # News
+- [2023/09] The newest `llama2-wrapper>=0.1.14` supports llama.cpp's `gguf` models.
+
 - [2023/08] 🔥 For developers, we offer a web server that acts as a drop-in replacement for the OpenAI API.
 
   - Usage: 
