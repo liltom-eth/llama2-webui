@@ -9,7 +9,7 @@ torch==2.0.1
 transformers==4.31.0
 tqdm==4.65.0
 python-dotenv==1.0.0
-llama-cpp-python== 0.1.77
+llama-cpp-python==0.2.11
 memory-profiler==0.61.0
 huggingface-hub==0.16.4
 fastapi==0.100.0

@@ -1,7 +1,7 @@
 # llama2-webui
 
 Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Mac). 
-- Supporting all Llama 2 models (7B, 13B, 70B, GPTQ, GGML, [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ)) with 8-bit, 4-bit mode. 
+- Supporting all Llama 2 models (7B, 13B, 70B, GPTQ, GGML, GGUF, [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ)) with 8-bit, 4-bit mode. 
 - Use [llama2-wrapper](https://pypi.org/project/llama2-wrapper/) as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb). 
 - [Run OpenAI Compatible API](#start-openai-compatible-api) on Llama2 models.
 
@@ -11,7 +11,7 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 
 ## Features
 
-- Supporting models: [Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML), [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ) ...
+- Supporting models: [Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML),  [Llama-2-GGUF](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF),  [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ) ...
 - Supporting model backends: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ), [llama.cpp](https://github.com/ggerganov/llama.cpp)
 - Demos: [Run Llama2 on MacBook Air](https://twitter.com/liltom_eth/status/1682791729207070720?s=20); [Run Llama2 on free Colab T4 GPU](./colab/Llama_2_7b_Chat_GPTQ.ipynb)
 - Use  [llama2-wrapper](https://pypi.org/project/llama2-wrapper/)  as your local llama2 backend for Generative Agents/Apps; [colab example](./colab/Llama_2_7b_Chat_GPTQ.ipynb).  
@@ -48,7 +48,12 @@ Running Llama 2 with gradio web UI on GPU or CPU from anywhere (Linux/Windows/Ma
 ```
 pip install llama2-wrapper
 ```
+The newest `llama2-wrapper>=0.1.14` supports llama.cpp's `gguf` models.
+
+If you would like to use old `ggml` models, install `llama2-wrapper<=0.1.13` or manually install `llama-cpp-python==0.1.77`.
+
 ### Method 2: From Source:
+
 ```
 git clone https://github.com/liltom-eth/llama2-webui.git
 cd llama2-webui
@@ -80,8 +85,8 @@ python app.py
 
 ```bash
 Running on backend llama.cpp.
-Use default model path: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin
-Start downloading model to: ./models/llama-2-7b-chat.ggmlv3.q4_0.bin
+Use default model path: ./models/llama-2-7b-chat.Q4_0.gguf
+Start downloading model to: ./models/llama-2-7b-chat.Q4_0.gguf
 ```
 
 You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). 
@@ -95,10 +100,12 @@ Base model **Code Llama** and extend model **Code Llama — Python** are not fin
 Here is an example run CodeLlama code completion on llama.cpp backend:
 
 ``` 
-python code_completion.py --model_path ./models/codellama-7b.ggmlv3.Q4_0.bin
+python code_completion.py --model_path ./models/codellama-7b.Q4_0.gguf
 ```
 
 ![code_llama_playground](https://i.imgur.com/FgMUiT6.gif)
+
+`codellama-7b.Q4_0.gguf` can be downloaded from [TheBloke/CodeLlama-7B-GGUF](https://huggingface.co/TheBloke/CodeLlama-7B-GGUF/blob/main/codellama-7b.Q4_0.gguf).
 
 **Code Llama — Instruct** trained with “natural language instruction” inputs paired with anticipated outputs. This strategic methodology enhances the model’s capacity to grasp human expectations in prompts. That means instruct models can be used in a chatbot-like app.
 
@@ -109,6 +116,8 @@ python app.py --backend_type gptq --model_path ./models/CodeLlama-7B-Instruct-GP
 ```
 
 ![code_llama_chat](https://i.imgur.com/lQLfemB.gif)
+
+`CodeLlama-7B-Instruct-GPTQ` can be downloaded from [TheBloke/CodeLlama-7B-Instruct-GPTQ](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ)
 
 ### Use llama2-wrapper for Your App
 
@@ -229,6 +238,7 @@ Llama-2-7b-Chat-GPTQ is the GPTQ model files for [Meta's Llama 2 7b Chat](https:
 | meta-llama/Llama-2-13b-hf           | /path-to/Llama-2-13b-hf                  | [Link](https://huggingface.co/meta-llama/Llama-2-13b-hf)     |
 | meta-llama/Llama-2-70b-hf           | /path-to/Llama-2-70b-hf                  | [Link](https://huggingface.co/meta-llama/Llama-2-70b-hf)     |
 | TheBloke/Llama-2-7b-Chat-GPTQ       | /path-to/Llama-2-7b-Chat-GPTQ            | [Link](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ) |
+| TheBloke/Llama-2-7b-Chat-GGUF       | /path-to/llama-2-7b-chat.Q4_0.gguf       | [Link](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_0.gguf) |
 | TheBloke/Llama-2-7B-Chat-GGML       | /path-to/llama-2-7b-chat.ggmlv3.q4_0.bin | [Link](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) |
 | TheBloke/CodeLlama-7B-Instruct-GPTQ | TheBloke/CodeLlama-7B-Instruct-GPTQ      | [Link](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ) |
 | ...                                 | ...                                      | ...                                                          |
@@ -244,7 +254,7 @@ These models can be downloaded through:
 ```bash
 python -m llama2_wrapper.download --repo_id TheBloke/CodeLlama-7B-Python-GPTQ
 
-python -m llama2_wrapper.download --repo_id TheBloke/Llama-2-7B-Chat-GGML --filename llama-2-7b-chat.ggmlv3.q2_K.bin --save_dir ./models
+python -m llama2_wrapper.download --repo_id TheBloke/Llama-2-7b-Chat-GGUF --filename llama-2-7b-chat.Q4_0.gguf --save_dir ./models
 ```
 
 Or use CMD like:
