@@ -8,6 +8,10 @@ from distutils.util import strtobool
 
 from llama2_wrapper import LLAMA2_WRAPPER
 
+import logging
+
+from prompts.utils import PromtsContainer
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -63,8 +67,6 @@ def main():
 
     DESCRIPTION = """
     # llama2-webui
-
-    This is a chatbot based on Llama-2. 
     """
     DESCRIPTION2 = """
     - Supporting models: [Llama-2-7b](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML), [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ) ...
@@ -80,6 +82,12 @@ def main():
         history.append((message, ""))
         return history
 
+    def display_input_from_prompt(
+        message: str, history: list[tuple[str, str]]
+    ) -> list[tuple[str, str]]:
+        message =convert_summary_to_prompt(message)
+        return display_input(message,history)
+    
     def delete_prev_fn(
         history: list[tuple[str, str]]
     ) -> tuple[list[tuple[str, str]], str]:
@@ -100,24 +108,32 @@ def main():
     ) -> Iterator[list[tuple[str, str]]]:
         if max_new_tokens > MAX_MAX_NEW_TOKENS:
             raise ValueError
-
-        history = history_with_input[:-1]
-        generator = llama2_wrapper.run(
-            message, history, system_prompt, max_new_tokens, temperature, top_p, top_k
-        )
         try:
-            first_response = next(generator)
-            yield history + [(message, first_response)]
-        except StopIteration:
-            yield history + [(message, "")]
-        for response in generator:
-            yield history + [(message, response)]
+            history = history_with_input[:-1]
+            generator = llama2_wrapper.run(
+                message, history, system_prompt, max_new_tokens, temperature, top_p, top_k
+            )
+            try:
+                first_response = next(generator)
+                yield history + [(message, first_response)]
+            except StopIteration:
+                yield history + [(message, "")]
+            for response in generator:
+                yield history + [(message, response)]
+        except Exception as e:
+            logging.exception(e)
 
-    def process_example(message: str) -> tuple[str, list[tuple[str, str]]]:
-        generator = generate(message, [], DEFAULT_SYSTEM_PROMPT, 1024, 1, 0.95, 50)
-        for x in generator:
-            pass
-        return "", x
+    def generate_for_prompt(
+        message: str,
+        history_with_input: list[tuple[str, str]],
+        system_prompt: str,
+        max_new_tokens: int,
+        temperature: float,
+        top_p: float,
+        top_k: int,
+    ) -> Iterator[list[tuple[str, str]]]:
+        message = convert_summary_to_prompt(message)
+        yield from generate(message,history_with_input,system_prompt,max_new_tokens,temperature,top_p,top_k)
 
     def check_input_token_length(
         message: str, chat_history: list[tuple[str, str]], system_prompt: str
@@ -130,77 +146,136 @@ def main():
                 f"The accumulated input is too long ({input_token_length} > {MAX_INPUT_TOKEN_LENGTH}). Clear your chat history and try again."
             )
 
-    with gr.Blocks() as demo:
-        gr.Markdown(DESCRIPTION)
+    def check_input_token_length_for_prompt(
+        message: str, chat_history: list[tuple[str, str]], system_prompt: str
+    ) -> None:
+        message = convert_summary_to_prompt(message)
+        return check_input_token_length(message=message,chat_history=chat_history,system_prompt=system_prompt)  
 
-        with gr.Group():
-            chatbot = gr.Chatbot(label="Chatbot")
-            with gr.Row():
-                textbox = gr.Textbox(
-                    container=False,
-                    show_label=False,
-                    placeholder="Type a message...",
-                    scale=10,
-                )
-                submit_button = gr.Button(
-                    "Submit", variant="primary", scale=1, min_width=0
-                )
-        with gr.Row():
-            retry_button = gr.Button("🔄  Retry", variant="secondary")
-            undo_button = gr.Button("↩️ Undo", variant="secondary")
-            clear_button = gr.Button("🗑️  Clear", variant="secondary")
 
-        saved_input = gr.State()
+    prompts_container = PromtsContainer()
+    prompts = prompts_container.get_prompts_tab_dict()
+    default_prompts_checkbox=False
+    default_advanced_checkbox =False
+    def convert_summary_to_prompt(summary):
+        return prompts_container.get_prompt_by_summary(summary)
 
-        with gr.Accordion(label="Advanced options", open=False):
-            system_prompt = gr.Textbox(
-                label="System prompt", value=DEFAULT_SYSTEM_PROMPT, lines=6
-            )
-            max_new_tokens = gr.Slider(
-                label="Max new tokens",
-                minimum=1,
-                maximum=MAX_MAX_NEW_TOKENS,
-                step=1,
-                value=DEFAULT_MAX_NEW_TOKENS,
-            )
-            temperature = gr.Slider(
-                label="Temperature",
-                minimum=0.1,
-                maximum=4.0,
-                step=0.1,
-                value=1.0,
-            )
-            top_p = gr.Slider(
-                label="Top-p (nucleus sampling)",
-                minimum=0.05,
-                maximum=1.0,
-                step=0.05,
-                value=0.95,
-            )
-            top_k = gr.Slider(
-                label="Top-k",
-                minimum=1,
-                maximum=1000,
-                step=1,
-                value=50,
-            )
+    def two_columns_list(tab_data, chatbot):
+        result = []
+        for i in range(int(len(tab_data)/2)+1):
+            row =gr.Row()
+            with row:
+                for j in range(2):
+                    index = 2*i+j
+                    if index >=len(tab_data):
+                        break
+                    item = tab_data[index]
+                    with gr.Group():
+                        # gr.HighlightedText([(f"{item['act']}","")],label="")
+                        gr.HTML(f'<p style="color: black; font-weight: bold;">{item["act"]}</p>')
+                        prompt_text = gr.Textbox(
+                                    label="",
+                                    value=f"{item['summary']}",
+                                    container=False,
+                                    lines=5
+                                )
+                        prompt_text.focus(
+                                fn=display_input_from_prompt,
+                                inputs=[prompt_text, chatbot],
+                                outputs=chatbot,
+                                api_name=False,
+                                queue=False,
+                            ).then(
+                                fn=check_input_token_length_for_prompt,
+                                inputs=[prompt_text, chatbot, system_prompt],
+                                api_name=False,
+                                queue=False,
+                            ).success(
+                                fn=generate_for_prompt,
+                                inputs=[
+                                    prompt_text,
+                                    chatbot,
+                                    system_prompt,
+                                    max_new_tokens,
+                                    temperature,
+                                    top_p,
+                                    top_k,
+                                ],
+                                outputs=chatbot,
+                                api_name=False,
+                            )
+                result.append(row)
+        return result
+    CSS ="""
+        .contain { display: flex; flex-direction: column;}
+        #component-0 #component-1 #component-2 #component-4 #component-5 { height:71vh !important; }
+        #component-0 #component-1 #component-24 > div:nth-child(2) { height:80vh !important; overflow-y:auto }
+    """
+    with gr.Blocks(css=CSS) as demo:
+        with gr.Row(equal_height=True):
+            with gr.Column(scale=2):
+                gr.Markdown(DESCRIPTION)
+                with gr.Group():
+                    chatbot = gr.Chatbot(label="Chatbot")
+                    with gr.Row():
+                        textbox = gr.Textbox(
+                            container=False,
+                            show_label=False,
+                            placeholder="Type a message...",
+                            scale=10,
+                        )
+                        submit_button = gr.Button(
+                            "Submit", variant="primary", scale=1, min_width=0
+                        )
+                with gr.Row():
+                    retry_button = gr.Button("🔄  Retry", variant="secondary")
+                    undo_button = gr.Button("↩️ Undo", variant="secondary")
+                    clear_button = gr.Button("🗑️  Clear", variant="secondary")
 
-        gr.Examples(
-            examples=[
-                "Hello there! How are you doing?",
-                "Can you explain briefly to me what is the Python programming language?",
-                "Explain the plot of Cinderella in a sentence.",
-                "How many hours does it take a man to eat a Helicopter?",
-                "Write a 100-word article on 'Benefits of Open-Source in AI research'",
-            ],
-            inputs=textbox,
-            outputs=[textbox, chatbot],
-            fn=process_example,
-            cache_examples=True,
-        )
-
-        gr.Markdown(DESCRIPTION2)
-
+                saved_input = gr.State()
+                with gr.Row():
+                    advanced_checkbox = gr.Checkbox(label='Advanced', value=default_prompts_checkbox, container=False, elem_classes='min_check')
+                    prompts_checkbox = gr.Checkbox(label='Prompts', value=default_prompts_checkbox, container=False, elem_classes='min_check')
+                with gr.Column(visible=default_advanced_checkbox) as advanced_column:
+                    system_prompt = gr.Textbox(
+                        label="System prompt", value=DEFAULT_SYSTEM_PROMPT, lines=6
+                    )
+                    max_new_tokens = gr.Slider(
+                        label="Max new tokens",
+                        minimum=1,
+                        maximum=MAX_MAX_NEW_TOKENS,
+                        step=1,
+                        value=DEFAULT_MAX_NEW_TOKENS,
+                    )
+                    temperature = gr.Slider(
+                        label="Temperature",
+                        minimum=0.1,
+                        maximum=4.0,
+                        step=0.1,
+                        value=1.0,
+                    )
+                    top_p = gr.Slider(
+                        label="Top-p (nucleus sampling)",
+                        minimum=0.05,
+                        maximum=1.0,
+                        step=0.05,
+                        value=0.95,
+                    )
+                    top_k = gr.Slider(
+                        label="Top-k",
+                        minimum=1,
+                        maximum=1000,
+                        step=1,
+                        value=50,
+                    )  
+            with gr.Column(scale=1,visible=default_prompts_checkbox) as prompt_column:
+                gr.HTML('<p style="color: green; font-weight: bold;font-size: 16px;">\N{four leaf clover} prompts</p>')
+                for k,v in prompts.items():
+                    with gr.Tab(k,scroll_to_output=True):
+                        lst = two_columns_list(v, chatbot)
+            prompts_checkbox.change(lambda x: gr.update(visible=x), prompts_checkbox, prompt_column, queue=False)
+            advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False)
+                              
         textbox.submit(
             fn=clear_and_save_textbox,
             inputs=textbox,
