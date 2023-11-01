@@ -154,13 +154,12 @@ def main():
                     with gr.Group():
                         gr.HTML(
                             f'<p style="color: black; font-weight: bold;">{item["act"]}</p>')
-                        prompt_text = gr.Textbox(
+                        prompt_text = gr.Button(
                             label="",
                             value=f"{item['summary']}",
-                            container=False,
-                            lines=5
+                            size="sm"
                         )
-                        prompt_text.focus(
+                        prompt_text.click(
                             fn=save_textbox_for_prompt,
                             inputs=prompt_text,
                             outputs=saved_input,
