@@ -157,7 +157,8 @@ def main():
                         prompt_text = gr.Button(
                             label="",
                             value=f"{item['summary']}",
-                            size="sm"
+                            size="sm",
+                            elem_classes='text-left-aligned'
                         )
                         prompt_text.click(
                             fn=save_textbox_for_prompt,
@@ -196,6 +197,7 @@ def main():
         .contain { display: flex; flex-direction: column;}
         #component-0 #component-1 #component-2 #component-4 #component-5 { height:71vh !important; }
         #component-0 #component-1 #component-24 > div:nth-child(2) { height:80vh !important; overflow-y:auto }
+        .text-left-aligned {text-align: left !important; font-size: 16px;}
     """
     with gr.Blocks(css=CSS) as demo:
         with gr.Row(equal_height=True):
