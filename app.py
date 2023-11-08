@@ -110,7 +110,13 @@ def main():
         try:
             history = history_with_input[:-1]
             generator = llama2_wrapper.run(
-                message, history, system_prompt, max_new_tokens, temperature, top_p, top_k
+                message,
+                history,
+                system_prompt,
+                max_new_tokens,
+                temperature,
+                top_p,
+                top_k,
             )
             try:
                 first_response = next(generator)
@@ -143,22 +149,23 @@ def main():
 
     def two_columns_list(tab_data, chatbot):
         result = []
-        for i in range(int(len(tab_data)/2)+1):
+        for i in range(int(len(tab_data) / 2) + 1):
             row = gr.Row()
             with row:
                 for j in range(2):
-                    index = 2*i+j
+                    index = 2 * i + j
                     if index >= len(tab_data):
                         break
                     item = tab_data[index]
                     with gr.Group():
                         gr.HTML(
-                            f'<p style="color: black; font-weight: bold;">{item["act"]}</p>')
+                            f'<p style="color: black; font-weight: bold;">{item["act"]}</p>'
+                        )
                         prompt_text = gr.Button(
                             label="",
                             value=f"{item['summary']}",
                             size="sm",
-                            elem_classes='text-left-aligned'
+                            elem_classes="text-left-aligned",
                         )
                         prompt_text.click(
                             fn=save_textbox_for_prompt,
@@ -193,7 +200,8 @@ def main():
                         )
                 result.append(row)
         return result
-    CSS ="""
+
+    CSS = """
         .contain { display: flex; flex-direction: column;}
         #component-0 #component-1 #component-2 #component-4 #component-5 { height:71vh !important; }
         #component-0 #component-1 #component-24 > div:nth-child(2) { height:80vh !important; overflow-y:auto }
@@ -223,9 +231,17 @@ def main():
                 saved_input = gr.State()
                 with gr.Row():
                     advanced_checkbox = gr.Checkbox(
-                        label='Advanced', value=default_prompts_checkbox, container=False, elem_classes='min_check')
+                        label="Advanced",
+                        value=default_prompts_checkbox,
+                        container=False,
+                        elem_classes="min_check",
+                    )
                     prompts_checkbox = gr.Checkbox(
-                        label='Prompts', value=default_prompts_checkbox, container=False, elem_classes='min_check')
+                        label="Prompts",
+                        value=default_prompts_checkbox,
+                        container=False,
+                        elem_classes="min_check",
+                    )
                 with gr.Column(visible=default_advanced_checkbox) as advanced_column:
                     system_prompt = gr.Textbox(
                         label="System prompt", value=DEFAULT_SYSTEM_PROMPT, lines=6
@@ -257,15 +273,27 @@ def main():
                         maximum=1000,
                         step=1,
                         value=50,
-                    )  
-            with gr.Column(scale=1,visible=default_prompts_checkbox) as prompt_column:
-                gr.HTML('<p style="color: green; font-weight: bold;font-size: 16px;">\N{four leaf clover} prompts</p>')
-                for k,v in prompts.items():
-                    with gr.Tab(k,scroll_to_output=True):
+                    )
+            with gr.Column(scale=1, visible=default_prompts_checkbox) as prompt_column:
+                gr.HTML(
+                    '<p style="color: green; font-weight: bold;font-size: 16px;">\N{four leaf clover} prompts</p>'
+                )
+                for k, v in prompts.items():
+                    with gr.Tab(k, scroll_to_output=True):
                         lst = two_columns_list(v, chatbot)
-            prompts_checkbox.change(lambda x: gr.update(visible=x), prompts_checkbox, prompt_column, queue=False)
-            advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False)
-                              
+            prompts_checkbox.change(
+                lambda x: gr.update(visible=x),
+                prompts_checkbox,
+                prompt_column,
+                queue=False,
+            )
+            advanced_checkbox.change(
+                lambda x: gr.update(visible=x),
+                advanced_checkbox,
+                advanced_column,
+                queue=False,
+            )
+
         textbox.submit(
             fn=clear_and_save_textbox,
             inputs=textbox,
