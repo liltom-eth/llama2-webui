@@ -20,11 +20,15 @@ def main():
     parser.add_argument(
         "--save_dir", type=str, default="./models", help="Directory to save models"
     )
+    parser.add_argument(
+        "--revision", type=str, default="main", help="specific repository revision"
+    )
 
     args = parser.parse_args()
 
     repo_id = args.repo_id
     save_dir = args.save_dir
+    revision = args.revision
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -52,6 +56,7 @@ def main():
         snapshot_download(
             repo_id=repo_id,
             local_dir=save_path,
+            revision=revision,
         )
 
 

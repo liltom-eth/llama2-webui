@@ -135,9 +135,10 @@ class LLAMA2_WRAPPER:
                 model_path,
                 use_safetensors=True,
                 trust_remote_code=True,
-                device="cuda:0",
+                device_map='auto',
                 use_triton=False,
                 quantize_config=None,
+                inject_fused_attention=False,
             )
         elif backend_type is BackendType.TRANSFORMERS:
             import torch
