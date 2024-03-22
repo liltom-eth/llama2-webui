@@ -23,6 +23,13 @@ def main():
         help="Backend options: llama.cpp, gptq, transformers",
     )
     parser.add_argument(
+        "--gptq_gpu_memory",
+        type=str,
+        default="",
+        help="Set GPU maximum memory for GPTQ backend to use multiple GPUs, "
+             "e.g. \"0:23GiB,1:23GiB\"",
+    )
+    parser.add_argument(
         "--load_in_8bit",
         type=bool,
         default=False,
@@ -61,6 +68,7 @@ def main():
     assert BACKEND_TYPE is not None, f"BACKEND_TYPE is required, got: {BACKEND_TYPE}"
 
     LOAD_IN_8BIT = bool(strtobool(os.getenv("LOAD_IN_8BIT", "True")))
+    GPTQ_GPU_MEMORY = args.gptq_gpu_memory
 
     if args.model_path != "":
         MODEL_PATH = args.model_path
@@ -74,6 +82,7 @@ def main():
         backend_type=BACKEND_TYPE,
         max_tokens=MAX_INPUT_TOKEN_LENGTH,
         load_in_8bit=LOAD_IN_8BIT,
+        gptq_gpu_memory=GPTQ_GPU_MEMORY,
         # verbose=True,
     )
 

@@ -1,6 +1,7 @@
 import os
 import time
 import uuid
+import re
 from enum import Enum
 from threading import Thread
 from typing import Any, Iterator, Union, List
@@ -25,6 +26,7 @@ class LLAMA2_WRAPPER:
         backend_type: str = "llama.cpp",
         max_tokens: int = 4000,
         load_in_8bit: bool = True,
+        gptq_gpu_memory: str = "",
         verbose: bool = False,
     ):
         """Load a llama2 model from `model_path`.
@@ -46,6 +48,7 @@ class LLAMA2_WRAPPER:
         self.backend_type = BackendType.get_type(backend_type)
         self.max_tokens = max_tokens
         self.load_in_8bit = load_in_8bit
+        self.gptq_gpu_memory = gptq_gpu_memory
 
         self.model = None
         self.tokenizer = None
@@ -105,6 +108,7 @@ class LLAMA2_WRAPPER:
                 self.backend_type,
                 self.max_tokens,
                 self.load_in_8bit,
+                self.gptq_gpu_memory,
                 self.verbose,
             )
         if self.backend_type is not BackendType.LLAMA_CPP:
@@ -116,8 +120,10 @@ class LLAMA2_WRAPPER:
                 self.tokenizer = LLAMA2_WRAPPER.create_llama2_tokenizer(self.model_path)
 
     @classmethod
+    # gptq_gpu_memory: str like "0:23GiB,1:23GiB"
     def create_llama2_model(
-        cls, model_path, backend_type, max_tokens, load_in_8bit, verbose
+        cls, model_path, backend_type, max_tokens, load_in_8bit,
+        gptq_gpu_memory, verbose
     ):
         if backend_type is BackendType.LLAMA_CPP:
             from llama_cpp import Llama
@@ -131,11 +137,25 @@ class LLAMA2_WRAPPER:
         elif backend_type is BackendType.GPTQ:
             from auto_gptq import AutoGPTQForCausalLM
 
+            if len(gptq_gpu_memory) > 0:
+                pattern = r'(\d+)\s*:\s*(\d+)\s*([a-zA-Z]+)'
+
+                try:
+                    matches = re.findall(pattern, gptq_gpu_memory)
+                    max_memory = {}
+
+                    for match in matches:
+                        index, value, unit = match
+                        max_memory[int(index)] = value + unit
+                except:
+                    max_memory = None
+
             model = AutoGPTQForCausalLM.from_quantized(
                 model_path,
                 use_safetensors=True,
                 trust_remote_code=True,
                 device="cuda:0",
+                max_memory=max_memory,
                 use_triton=False,
                 quantize_config=None,
             )

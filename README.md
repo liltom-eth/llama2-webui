@@ -308,6 +308,8 @@ Make sure you have downloaded the 4-bit model from `Llama-2-7b-Chat-GPTQ` and se
 If you encounter issue like `NameError: name 'autogptq_cuda_256' is not defined`, please refer to [here](https://huggingface.co/TheBloke/open-llama-13b-open-instruct-GPTQ/discussions/1)
 > pip install https://github.com/PanQiWei/AutoGPTQ/releases/download/v0.3.0/auto_gptq-0.3.0+cu117-cp310-cp310-linux_x86_64.whl  
 
+If you have multiple GPUs, you need to set the maximum usage of memory for each GPU through the parameter `--gptq_gpu_memory`. Otherwise, memory will only be allocated on the first GPU. If first GPU's memory is not enough, this will cause an error: `torch.cuda.OutOfMemoryError : CUDA out of memory.`. An example running on 24GB memory dual GPUs: `--gptq_gpu_memory "0:23GiB,1:23GiB"`.
+
 ### Run on CPU
 
 Run Llama-2 model on CPU requires [llama.cpp](https://github.com/ggerganov/llama.cpp) dependency and [llama.cpp Python Bindings](https://github.com/abetlen/llama-cpp-python), which are already installed. 
