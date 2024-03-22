@@ -4,6 +4,9 @@ dist
 .DS_Store
 .vscode
 
+.venv
+venv
+
 __pycache__
 gradio_cached_examples
 

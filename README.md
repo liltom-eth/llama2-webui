@@ -89,7 +89,7 @@ Use default model path: ./models/llama-2-7b-chat.Q4_0.gguf
 Start downloading model to: ./models/llama-2-7b-chat.Q4_0.gguf
 ```
 
-You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). 
+You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). You can use the `--listen` to allow network requests, use the `--port` to specify listening port.
 
 ### Start Code Llama UI
 
@@ -307,6 +307,8 @@ Make sure you have downloaded the 4-bit model from `Llama-2-7b-Chat-GPTQ` and se
 
 If you encounter issue like `NameError: name 'autogptq_cuda_256' is not defined`, please refer to [here](https://huggingface.co/TheBloke/open-llama-13b-open-instruct-GPTQ/discussions/1)
 > pip install https://github.com/PanQiWei/AutoGPTQ/releases/download/v0.3.0/auto_gptq-0.3.0+cu117-cp310-cp310-linux_x86_64.whl  
+
+If you have multiple GPUs, you need to set the maximum usage of memory for each GPU through the parameter `--gptq_gpu_memory`. Otherwise, memory will only be allocated on the first GPU. If first GPU's memory is not enough, this will cause an error: `torch.cuda.OutOfMemoryError : CUDA out of memory.`. An example running on 24GB memory dual GPUs: `--gptq_gpu_memory "0:23GiB,1:23GiB"`.
 
 ### Run on CPU
 

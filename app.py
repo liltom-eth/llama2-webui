@@ -23,6 +23,13 @@ def main():
         help="Backend options: llama.cpp, gptq, transformers",
     )
     parser.add_argument(
+        "--gptq_gpu_memory",
+        type=str,
+        default="",
+        help="Set GPU maximum memory for GPTQ backend to use multiple GPUs, "
+             "e.g. \"0:23GiB,1:23GiB\"",
+    )
+    parser.add_argument(
         "--load_in_8bit",
         type=bool,
         default=False,
@@ -33,6 +40,18 @@ def main():
         type=bool,
         default=False,
         help="Whether to share public for gradio.",
+    )
+    parser.add_argument(
+        "--listen",
+        type=bool,
+        default=False,
+        help="listen on 0.0.0.0, allowing to respond to network requests",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=7860,
+        help="port to listen on, default 7860",
     )
     args = parser.parse_args()
 
@@ -49,6 +68,7 @@ def main():
     assert BACKEND_TYPE is not None, f"BACKEND_TYPE is required, got: {BACKEND_TYPE}"
 
     LOAD_IN_8BIT = bool(strtobool(os.getenv("LOAD_IN_8BIT", "True")))
+    GPTQ_GPU_MEMORY = args.gptq_gpu_memory
 
     if args.model_path != "":
         MODEL_PATH = args.model_path
@@ -62,6 +82,7 @@ def main():
         backend_type=BACKEND_TYPE,
         max_tokens=MAX_INPUT_TOKEN_LENGTH,
         load_in_8bit=LOAD_IN_8BIT,
+        gptq_gpu_memory=GPTQ_GPU_MEMORY,
         # verbose=True,
     )
 
@@ -411,7 +432,15 @@ def main():
             api_name=False,
         )
 
-    demo.queue(max_size=20).launch(share=args.share)
+    launch_params = {
+        "share": args.share,
+        "server_port": args.port
+    }
+
+    if args.listen:
+        launch_params["server_name"] = "0.0.0.0"
+
+    demo.queue(max_size=20).launch(**launch_params)
 
 
 if __name__ == "__main__":
