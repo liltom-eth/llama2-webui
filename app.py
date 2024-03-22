@@ -34,6 +34,18 @@ def main():
         default=False,
         help="Whether to share public for gradio.",
     )
+    parser.add_argument(
+        "--listen",
+        type=bool,
+        default=False,
+        help="listen on 0.0.0.0, allowing to respond to network requests",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=7860,
+        help="port to listen on, default 7860",
+    )
     args = parser.parse_args()
 
     load_dotenv()
@@ -411,7 +423,15 @@ def main():
             api_name=False,
         )
 
-    demo.queue(max_size=20).launch(share=args.share)
+    launch_params = {
+        "share": args.share,
+        "server_port": args.port
+    }
+
+    if args.listen:
+        launch_params["server_name"] = "0.0.0.0"
+
+    demo.queue(max_size=20).launch(**launch_params)
 
 
 if __name__ == "__main__":

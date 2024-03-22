@@ -89,7 +89,7 @@ Use default model path: ./models/llama-2-7b-chat.Q4_0.gguf
 Start downloading model to: ./models/llama-2-7b-chat.Q4_0.gguf
 ```
 
-You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). 
+You can also customize your `MODEL_PATH`, `BACKEND_TYPE,` and model configs in `.env` file to run different llama2 models on different backends (llama.cpp, transformers, gptq). You can use the `--listen` to allow network requests, use the `--port` to specify listening port.
 
 ### Start Code Llama UI
 
